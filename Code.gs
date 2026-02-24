@@ -922,7 +922,7 @@ function emailSelectedRows() {
   ss.toast('Sending emails\u2026', 'Autograder', -1);
   var count = 0;
   for (var r = sel.getRow(); r < sel.getRow() + sel.getNumRows(); r++) {
-    if (r >= 2 && sendEmailForRow_(r)) count++;
+    if (r >= 2 && sendEmailForRow_(r, true)) count++;
   }
   ss.toast('', 'Autograder', 1);
   SpreadsheetApp.getUi().alert('Sent ' + count + ' email(s).');
@@ -930,7 +930,9 @@ function emailSelectedRows() {
 
 /**
  * Sends a results email for a single row. Returns true if sent, false if skipped.
- * Skips rows with Status "Error" (e.g., API failures) unless force=true.
+ * When force=true (used by Email Selected Rows), re-sends even if already emailed
+ * and sends even if Status is "Error". When force is falsy (automatic flows like
+ * onFormSubmit and Grade & Email All New), skips already-emailed rows and Error rows.
  */
 function sendEmailForRow_(rowNum, force) {
   var sh = SpreadsheetApp.getActive().getSheetByName(SHEET_SUB);
@@ -944,7 +946,7 @@ function sendEmailForRow_(rowNum, force) {
   var row   = sh.getRange(rowNum, 1, 1, sh.getLastColumn()).getValues()[0];
   var email = String(row[head.Email] || '').trim();
   if (!email) return false;
-  if (row[head.EmailedAt]) return false; // already emailed
+  if (!force && row[head.EmailedAt]) return false; // already emailed (force bypasses this)
 
   // Don't email students about internal errors (429, timeouts, etc.)
   var status = String(row[head.Status] || '').trim();
