@@ -106,7 +106,7 @@ All menu actions operate on the **Submissions** sheet — never on Form Response
 | **Re-grade Selected Rows** | Re-grades only the rows you highlight in Submissions | You edited criteria and want to test the change on a few rows |
 | **Re-grade All Rows…** | Re-grades every submission (slow, uses API credits) | You changed criteria and want to recalculate all scores |
 | **Grade & Email All New** | Imports, grades, and emails results for all un-emailed students in one step | Batch grading at the end of a class or day |
-| **Email Selected Rows** | Sends result emails for rows you highlight in Submissions | Re-sending to specific students, or sending after manual review |
+| **Email Selected Rows** | Sends result emails for rows you highlight in Submissions (re-sends even if already emailed) | Re-sending updated grades after re-grading, or sending after manual review |
 | **Sync Levels from Criteria** | Rebuilds the Levels sheet from LevelIDs found in the Criteria sheet. Preserves existing Enabled/Model settings. | You imported a new/updated criteria CSV and need the Levels sheet to match |
 | **Test API Connection** | Verifies API key and structured JSON grading in one combined test | After initial setup, or when troubleshooting |
 | **Help / Setup Guide** | Opens the in-app help dialog | Any time you need a quick reference |
@@ -137,7 +137,7 @@ The main data sheet. One row per submission. All grading reads/writes happen her
 
 ### Grade View P#
 
-Read-only formula sheets (one per period). Automatically filters and sorts Submissions by period, then by level and last name. **Protected** — don't edit these directly.
+Read-only formula sheets (one per period). Automatically filters and sorts Submissions by period, then by level and last name. Rows are alternately shaded by level group (white/gray) so you can quickly see where one level's submissions end and the next begins. **Protected** — don't edit these directly.
 
 ### Levels
 

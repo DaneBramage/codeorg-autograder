@@ -248,6 +248,9 @@ function createSheetsFromSetup(newPeriods) {
         Status: 80, Email: 180, ShareURL: 160, Timestamp: 140, Notes: 300
       });
 
+      // Alternate row shading by LevelID group (dynamic — updates as data arrives)
+      applyLevelGroupBanding_(gv);
+
       createdCount++;
     });
   }
@@ -466,6 +469,27 @@ function applyStatusFormatting_(sh) {
     .build());
 
   sh.setConditionalFormatRules(rules);
+}
+
+/**
+ * Adds conditional formatting to a Grade View sheet so that rows alternate
+ * background color by LevelID group. Uses COUNTUNIQUE($A$2:$A2) — because
+ * column A is LevelID and the view is sorted by LevelID, each contiguous
+ * block of the same level gets the same shade and the color flips when the
+ * level changes. Fully formula-driven so it updates as new data arrives.
+ */
+function applyLevelGroupBanding_(gv) {
+  if (!gv) return;
+  var cols = gv.getMaxColumns() || 10;
+  var range = gv.getRange(2, 1, gv.getMaxRows() - 1, cols);
+
+  var rules = gv.getConditionalFormatRules();
+  rules.push(SpreadsheetApp.newConditionalFormatRule()
+    .whenFormulaSatisfied('=AND($A2<>"",ISEVEN(COUNTUNIQUE($A$2:$A2)))')
+    .setBackground('#dbdbdb')
+    .setRanges([range])
+    .build());
+  gv.setConditionalFormatRules(rules);
 }
 
 

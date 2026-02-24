@@ -2,6 +2,12 @@
 
 All notable changes to the Game Lab Autograder.
 
+## [2.3.0] — 2026-02-24
+
+### Added
+- **Grade View level-group banding** — rows in each Grade View sheet are now alternately shaded by LevelID group (white/gray). Fully formula-driven via conditional formatting, so it updates automatically as new submissions arrive. Delete existing Grade View sheets and re-run Initial Setup to apply.
+- **Email Selected Rows re-sends to already-emailed students** — previously, rows with a value in the EmailedAt column were silently skipped. Now the manual **Email Selected Rows** action always sends (useful after re-grading). Automatic flows (`onFormSubmit`, `Grade & Email All New`) still skip already-emailed rows.
+
 ## [2.2.0] — 2026-02-18
 
 ### Added
