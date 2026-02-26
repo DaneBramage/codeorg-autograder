@@ -51,6 +51,8 @@ This creates:
 - Name: `GEMINI_API_KEY`
 - Value: your Gemini API key (free at [aistudio.google.com](https://aistudio.google.com))
 
+> 📺 **New to Google API keys?** Watch this [1-minute tutorial on YouTube](https://www.youtube.com/watch?v=qMyOoAe9DS4) for a quick walkthrough.
+
 > **Optional:** To use OpenAI instead, add two properties:
 > - `LLM_PROVIDER` = `openai`
 > - `OPENAI_API_KEY` = your OpenAI key

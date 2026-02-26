@@ -67,6 +67,8 @@ All criteria use `llm_check` — the LLM evaluates each criterion against the st
 
 ## Code Style
 
+> 📐 For a deeper dive into the architecture, sheet layout, data flow, and key design decisions, see [PLAN.md](PLAN.md).
+
 - This is Google Apps Script (ES5-compatible JavaScript) — no `let`/`const`, no arrow functions, no template literals
 - Use `var` for all variable declarations
 - Functions intended as internal helpers use a trailing underscore: `myHelper_()`
