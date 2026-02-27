@@ -452,7 +452,7 @@ function createSubmissionForm() {
   // Create the form
   var form = FormApp.create('Game Lab Autograder Submissions');
   form.setDescription(
-    'Submit your Code.org Game Lab share link for grading.\n\n' +
+    'Submit your Code.org share link for grading.\n\n' +
     'Make sure you have clicked "Share" in Code.org and copied the URL before submitting.'
   );
   form.setCollectEmail(true);
@@ -484,7 +484,7 @@ function createSubmissionForm() {
   // Share URL
   form.addTextItem()
     .setTitle('Share URL')
-    .setHelpText('Paste your Code.org Game Lab share link (e.g., https://studio.code.org/projects/gamelab/abc123/)')
+    .setHelpText('Paste your Code.org share link (e.g., https://studio.code.org/projects/gamelab/abc123/)')
     .setRequired(true);
 
   // Link form responses to this spreadsheet
@@ -654,7 +654,7 @@ function gradeRows_(rowNums) {
         writeRow_(sh, rowNum, head, {
           ChannelID: '', Score: 0, MaxScore: maxPts,
           Status: 'Invalid share link (no ChannelID)',
-          Notes: 'Expected a studio.code.org/projects/gamelab/<id> share URL'
+          Notes: 'Expected a studio.code.org/projects/gamelab/<id> or applab/<id> share URL'
         });
         return;
       }
@@ -748,7 +748,7 @@ function buildRubricPrompt_(levelId, src, llmCrits) {
   });
 
   var system =
-    'You are a strict, consistent autograder for Code.org Game Lab (p5.js-style JavaScript). ' +
+    'You are a strict, consistent autograder for Code.org projects (Game Lab / App Lab JavaScript). ' +
     'Given student code and rubric checks, decide PASS/FAIL for each check. ' +
     'If the code is empty/unreadable, mark all FAIL and set unreadable=true. ' +
     'Output JSON only.';
@@ -929,7 +929,7 @@ function callResponsesStructured_(model, key, system, user, schema) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function extractChannelId_(url) {
-  var m = String(url).match(/https?:\/\/studio\.code\.org\/projects\/gamelab\/([A-Za-z0-9\-_]+)/i);
+  var m = String(url).match(/https?:\/\/studio\.code\.org\/projects\/(?:gamelab|applab)\/([A-Za-z0-9\-_]+)/i);
   return m ? m[1] : '';
 }
 
