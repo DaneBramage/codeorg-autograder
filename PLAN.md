@@ -1,10 +1,10 @@
-# Game Lab Autograder — Architecture & Design
+# Code.org Autograder — Architecture & Design
 
 > Internal reference document. For setup instructions, see [README.md](README.md).
 
 ## 1. Project Overview
 
-**Goal:** A Google Apps Script (`.gs`) that lives inside a Google Sheets spreadsheet. Teachers connect a Google Form where students submit their Code.org Game Lab share links. The script fetches the student source code, sends it to an LLM (Gemini or OpenAI) along with rubric criteria, and writes the score + notes back to the spreadsheet. Students optionally receive an automated email with their results.
+**Goal:** A Google Apps Script (`.gs`) that lives inside a Google Sheets spreadsheet. Teachers connect a Google Form where students submit their Code.org share links (Game Lab or App Lab). The script fetches the student source code, sends it to an LLM (Gemini or OpenAI) along with rubric criteria, and writes the score + notes back to the spreadsheet. Students optionally receive an automated email with their results.
 
 ### Core pipeline
 - Extract channel ID from share URL → fetch source from Code.org → build rubric prompt → call LLM → parse structured JSON → write score/notes → email student

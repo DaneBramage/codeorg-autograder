@@ -1,9 +1,9 @@
 /**
  * ============================================================================
- *  Game Lab Autograder v2  —  Google Apps Script
+ *  Code.org Autograder v2  —  Google Apps Script
  * ============================================================================
  *
- *  Grades Code.org Game Lab projects against rubric criteria using an LLM.
+ *  Grades Code.org Game Lab and App Lab projects against rubric criteria using an LLM.
  *
  *  Setup:
  *    1. Paste this entire file into Extensions → Apps Script → Code.gs
@@ -83,7 +83,7 @@ function showSetupDialog() {
   var html = HtmlService.createHtmlOutput(buildSetupHtml_(existing))
     .setWidth(460)
     .setHeight(380);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Game Lab Autograder — Initial Setup');
+  SpreadsheetApp.getUi().showModalDialog(html, 'Code.org Autograder — Initial Setup');
 }
 
 function buildSetupHtml_(existingPeriods) {
@@ -450,7 +450,7 @@ function createSubmissionForm() {
   }
 
   // Create the form
-  var form = FormApp.create('Game Lab Autograder Submissions');
+  var form = FormApp.create('Code.org Autograder Submissions');
   form.setDescription(
     'Submit your Code.org share link for grading.\n\n' +
     'Make sure you have clicked "Share" in Code.org and copied the URL before submitting.'
@@ -1580,8 +1580,8 @@ function showHelp() {
   var html = HtmlService.createHtmlOutput(
     '<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.5;max-width:500px;">' +
 
-    '<h2 style="margin:0 0 8px 0;font-size:16px;">\uD83C\uDFAE Game Lab Autograder v2</h2>' +
-    '<p style="margin:0 0 12px 0;color:#555;">Automatically grades Code.org Game Lab projects using AI.</p>' +
+    '<h2 style="margin:0 0 8px 0;font-size:16px;">\uD83C\uDFAE Code.org Autograder v2</h2>' +
+    '<p style="margin:0 0 12px 0;color:#555;">Automatically grades Code.org Game Lab and App Lab projects using AI.</p>' +
 
     '<h3 style="margin:12px 0 6px 0;font-size:14px;">\uD83D\uDE80 Getting Started</h3>' +
     '<ol style="margin:0 0 12px 18px;padding:0;">' +

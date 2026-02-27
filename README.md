@@ -1,6 +1,6 @@
-# 🎮 Game Lab Autograder
+# 🎮 Code.org Autograder
 
-Automatically grades [Code.org Game Lab](https://code.org/educate/gamelab) student projects using AI (Gemini or OpenAI).
+Automatically grades [Code.org](https://code.org) student projects (Game Lab and App Lab) using AI (Gemini or OpenAI).
 
 Students submit their share links via a Google Form. The autograder fetches their code, evaluates it against rubric criteria using an LLM, writes the score to a spreadsheet, and emails students their results — all automatically.
 
@@ -14,7 +14,7 @@ Built for the **CSD Unit 3 (Interactive Animations and Games)** curriculum.
 
 The fastest way to get started — everything is pre-configured:
 
-1. **Open the [Game Lab Autograder Starter Sheet](https://docs.google.com/spreadsheets/d/1VLgArpF6lgt5tuJvuFoLqXWtcYMmt1S_H2dVljmH0Pc/edit?usp=sharing)**
+1. **Open the [Code.org Autograder Starter Sheet](https://docs.google.com/spreadsheets/d/1VLgArpF6lgt5tuJvuFoLqXWtcYMmt1S_H2dVljmH0Pc/edit?usp=sharing)**
 2. **File → Make a copy** (this gives you your own editable copy with the script and criteria already loaded)
 3. **Reload the spreadsheet** — the **Autograder** menu will appear
 4. **Run Initial Setup:** Click **Autograder → Initial Setup…**, check your class periods, and click **Create Sheets**
@@ -280,7 +280,7 @@ All criteria use `llm_check` — each criterion is sent to the LLM along with th
 | Problem | Solution |
 |---|---|
 | **"Missing GEMINI_API_KEY"** | Go to Extensions → Apps Script → ⚙️ gear icon (Project Settings) → scroll to Script Properties → find `GEMINI_API_KEY` → paste your key as the Value. [Video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4) |
-| **"Invalid share link"** | Student's URL doesn't match `studio.code.org/projects/gamelab/...` — have them re-copy the share link |
+| **"Invalid share link"** | Student's URL doesn't match `studio.code.org/projects/gamelab/...` or `applab/...` — have them re-copy the share link |
 | **"No criteria found"** | The LevelID submitted doesn't match any LevelID in your Criteria sheet — check for typos in the form or criteria CSV |
 | **Rows showing `Error` status** | Usually a rate limit (429) that exhausted retries. Select the Error rows and run **Re-grade Selected Rows** — the retry logic will handle the backoff. |
 | **Submissions aren't auto-importing** | Verify the `onFormSubmit` trigger is set up (Extensions → Apps Script → Triggers). Use **Grade New Submissions** to catch up. |

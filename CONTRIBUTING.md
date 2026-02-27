@@ -1,4 +1,4 @@
-# Contributing to Game Lab Autograder
+# Contributing to Code.org Autograder
 
 Thanks for your interest in improving the autograder! This project is built by teachers for teachers.
 

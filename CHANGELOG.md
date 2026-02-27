@@ -1,10 +1,11 @@
 # Changelog
 
-All notable changes to the Game Lab Autograder.
+All notable changes to the Code.org Autograder.
 
 ## [2.4.0] — 2026-02-27
 
 ### Added
+- **App Lab support** — share URLs from both Game Lab (`/projects/gamelab/...`) and App Lab (`/projects/applab/...`) are now accepted. The Code.org source-fetch API is the same for both project types, so App Lab submissions work with no additional configuration — teachers just need App Lab criteria in their Criteria sheet.
 - **Starter Sheet** — README now leads with a one-click "Make a copy" link to a pre-configured Google Sheet with the script and CSD Unit 3 criteria already loaded. Teachers only need to add their API key and run Initial Setup.
 - **`GEMINI_API_KEY` pre-seeded by Initial Setup** — the script property is automatically created (with an empty value) when you run Initial Setup, so teachers see it in the Apps Script UI and only need to paste their key. No more typing the property name manually.
 - **YouTube video link in Help dialog** — the in-app help now includes a clickable link to the [1-minute API key setup video](https://www.youtube.com/watch?v=qMyOoAe9DS4).
@@ -13,6 +14,7 @@ All notable changes to the Game Lab Autograder.
 - **"Assessment Level" form field now recognized** — the `createSubmissionForm()` function names the level dropdown "Assessment Level", but `headersSmart_()` didn't include that alias. Form submissions were written to Submissions with an empty LevelID, causing "No URL/LevelID" errors during grading. Added "Assessment Level" to the LevelID alias list.
 
 ### Changed
+- **Renamed to "Code.org Autograder"** — all user-facing text (form title, setup dialog, help dialog, README, etc.) updated from "Game Lab Autograder" to "Code.org Autograder" to reflect App Lab support.
 - **"Grade New Submissions" now imports from all Form Responses sheets** — if more than one form is linked (e.g., Form Responses 1 and Form Responses 2), the backfill import now scans all of them. Dedup logic prevents duplicates across sheets. `onFormSubmit` (real-time trigger) was already unaffected since it fires per-submission.
 - **Improved API key instructions** — all error messages, the setup completion dialog, the Help dialog, and the README now include detailed click-by-click steps for adding the API key (Extensions → Apps Script → ⚙️ gear icon → Project Settings → Script Properties).
 
