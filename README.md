@@ -10,7 +10,34 @@ Built for the **CSD Unit 3 (Interactive Animations and Games)** curriculum.
 
 ## 🚀 Quick Setup
 
-### 1. Create the Google Sheet
+### Option A: Copy the Starter Sheet (Recommended)
+
+The fastest way to get started — everything is pre-configured:
+
+1. **Open the [Game Lab Autograder Starter Sheet](https://docs.google.com/spreadsheets/d/1VLgArpF6lgt5tuJvuFoLqXWtcYMmt1S_H2dVljmH0Pc/edit?usp=sharing)**
+2. **File → Make a copy** (this gives you your own editable copy with the script and criteria already loaded)
+3. **Reload the spreadsheet** — the **Autograder** menu will appear
+4. **Run Initial Setup:** Click **Autograder → Initial Setup…**, check your class periods, and click **Create Sheets**
+5. **Add your API key:**
+   - Go to **Extensions → Apps Script**
+   - Click the **⚙️ gear icon** (Project Settings) in the left sidebar
+   - Scroll down to **Script Properties**
+   - Find `GEMINI_API_KEY` and paste your API key as the **Value**
+   - Click **Save script properties**
+   - Get a free key at [aistudio.google.com](https://aistudio.google.com) — 📺 [1-minute video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4)
+6. **Test:** Click **Autograder → Test API Connection** — you should see ✅ for both tests
+7. **Create your form:** Click **Autograder → Create Submission Form** — share the student link with your class
+
+**Done!** When a student submits, their code is automatically graded and emailed.
+
+---
+
+### Option B: Set Up from Scratch
+
+<details>
+<summary>Click to expand full manual setup instructions</summary>
+
+#### 1. Create the Google Sheet
 
 - Create a new Google Sheet (or open an existing one)
 - Go to **Extensions → Apps Script**
@@ -19,7 +46,7 @@ Built for the **CSD Unit 3 (Interactive Animations and Games)** curriculum.
 - Click **Save** (💾)
 - Close the Apps Script editor and **reload the spreadsheet**
 
-### 2. Run Initial Setup
+#### 2. Run Initial Setup
 
 - In the spreadsheet, click **Autograder → Initial Setup…**
 - Check the class periods you teach (1–8)
@@ -33,7 +60,7 @@ This creates:
 | **Criteria** | Empty rubric sheet (you'll import a CSV next) |
 | **Grade View P#** | One per period — read-only views sorted by level then last name |
 
-### 3. Import Criteria
+#### 3. Import Criteria
 
 1. Switch to the **Criteria** sheet tab
 2. **File → Import → Upload** → pick a criteria CSV from the `criteria/` folder in this repo (e.g., `CSD-Unit3-Interactive-Animations-and-Games.csv`)
@@ -42,12 +69,13 @@ This creates:
 
 > 💡 To switch to a different set of criteria later, just import a new CSV into the Criteria sheet. Your Submissions and Grade Views are never affected.
 
-### 4. Set your API Key
+#### 4. Set your API Key
 
-- Go to **Extensions → Apps Script → ⚙️ Project Settings → Script Properties**
-- Click **Add script property**
-- Name: `GEMINI_API_KEY`
-- Value: your Gemini API key (free at [aistudio.google.com](https://aistudio.google.com))
+- Go to **Extensions → Apps Script** → click the **⚙️ gear icon** (Project Settings)
+- Scroll down to **Script Properties**
+- Find `GEMINI_API_KEY` and paste your API key as the **Value** (the property name is pre-created by Initial Setup)
+- If `GEMINI_API_KEY` doesn't appear, click **Add script property**, type `GEMINI_API_KEY` as the Property, and paste your key as the Value
+- Get a free key at [aistudio.google.com](https://aistudio.google.com)
 
 > 📺 **New to Google API keys?** Watch this [1-minute tutorial on YouTube](https://www.youtube.com/watch?v=qMyOoAe9DS4) for a quick walkthrough.
 
@@ -55,19 +83,21 @@ This creates:
 > - `LLM_PROVIDER` = `openai`
 > - `OPENAI_API_KEY` = your OpenAI key
 
-### 5. Test your connection
+#### 5. Test your connection
 
 - Click **Autograder → Test API Connection**
 - This runs two tests: a basic connectivity check and a structured JSON grading test
 - You should see ✅ for both
 
-### 6. Create & Link a Google Form
+#### 6. Create & Link a Google Form
 
 - Click **Autograder → Create Submission Form**
 - This automatically creates a Google Form with the correct fields, links it to your spreadsheet, and installs the auto-grade trigger
 - You'll see a dialog with the student-facing URL to share
 
 **Done!** When a student submits, their code is automatically graded and emailed.
+
+</details>
 
 <details>
 <summary>Manual alternative (if you prefer to create the form yourself)</summary>
@@ -202,11 +232,13 @@ The rubric. Imported from a CSV file (see `criteria/` folder). You can edit desc
 
 ### Script Properties
 
-Set in **Extensions → Apps Script → ⚙️ Project Settings → Script Properties**:
+Set in **Extensions → Apps Script → ⚙️ gear icon (Project Settings) → Script Properties**:
+
+> 💡 `GEMINI_API_KEY` is pre-created by Initial Setup — you just need to paste your key as the Value.
 
 | Property | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | Yes (default) | Your Gemini API key ([get one free](https://aistudio.google.com)) |
+| `GEMINI_API_KEY` | Yes (default) | Your Gemini API key ([get one free](https://aistudio.google.com)) — [video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4) |
 | `OPENAI_API_KEY` | If using OpenAI | Your OpenAI API key |
 | `LLM_PROVIDER` | No | `gemini` (default) or `openai` |
 
@@ -246,7 +278,7 @@ All criteria use `llm_check` — each criterion is sent to the LLM along with th
 
 | Problem | Solution |
 |---|---|
-| **"Missing GEMINI_API_KEY"** | Set the script property in Extensions → Apps Script → ⚙️ Project Settings → Script Properties |
+| **"Missing GEMINI_API_KEY"** | Go to Extensions → Apps Script → ⚙️ gear icon (Project Settings) → scroll to Script Properties → find `GEMINI_API_KEY` → paste your key as the Value. [Video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4) |
 | **"Invalid share link"** | Student's URL doesn't match `studio.code.org/projects/gamelab/...` — have them re-copy the share link |
 | **"No criteria found"** | The LevelID submitted doesn't match any LevelID in your Criteria sheet — check for typos in the form or criteria CSV |
 | **Rows showing `Error` status** | Usually a rate limit (429) that exhausted retries. Select the Error rows and run **Re-grade Selected Rows** — the retry logic will handle the backoff. |

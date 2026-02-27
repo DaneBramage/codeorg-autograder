@@ -233,6 +233,9 @@ function createSheetsFromSetup(newPeriods) {
   // --- Conditional formatting on Submissions Status column ---
   applyStatusFormatting_(sub);
 
+  // --- Seed GEMINI_API_KEY script property so it appears in the UI ---
+  seedApiKeyProperty_();
+
   // --- Set column widths ---
   setColumnWidths_(sub, {
     Timestamp: 140, First: 120, Last: 120, Period: 60, Email: 180,
@@ -255,10 +258,16 @@ function createSheetsFromSetup(newPeriods) {
   if (!critCount) {
     msg += '1. Import a criteria CSV into the Criteria sheet:\n';
     msg += '   File \u2192 Import \u2192 Upload \u2192 pick your CSV \u2192 "Replace current sheet"\n';
-    msg += '2. Set GEMINI_API_KEY in Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties\n';
+    msg += '2. Add your API key:\n';
+    msg += '   Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings (gear icon)\n';
+    msg += '   Scroll to Script Properties \u2192 find GEMINI_API_KEY \u2192 paste your key as the Value\n';
+    msg += '   (Get a free key at aistudio.google.com)\n';
     msg += '3. Use "Test API Connection" from the Autograder menu to verify\n';
   } else {
-    msg += '1. Set GEMINI_API_KEY in Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties\n';
+    msg += '1. Add your API key:\n';
+    msg += '   Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings (gear icon)\n';
+    msg += '   Scroll to Script Properties \u2192 find GEMINI_API_KEY \u2192 paste your key as the Value\n';
+    msg += '   (Get a free key at aistudio.google.com)\n';
     msg += '2. Use "Test API Connection" from the Autograder menu to verify\n';
   }
   msg += '\nSee "Help / Setup Guide" for full instructions.';
@@ -1220,7 +1229,7 @@ function testAPIConnection() {
     var basicOk = false, basicText = '';
     if (p === 'openai') {
       var key = PropertiesService.getScriptProperties().getProperty('OPENAI_API_KEY');
-      if (!key) throw new Error('OPENAI_API_KEY is not set.\n\nGo to Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties and add it.');
+      if (!key) throw new Error('OPENAI_API_KEY is not set.\n\nTo add it:\n1. Go to Extensions \u2192 Apps Script\n2. Click the \u2699\uFE0F gear icon (Project Settings)\n3. Scroll down to Script Properties\n4. Click "Add script property"\n5. Property: OPENAI_API_KEY   Value: your key');
       var resp = fetchWithRetry_('https://api.openai.com/v1/responses', {
         method: 'post', contentType: 'application/json', muteHttpExceptions: true,
         headers: { Authorization: 'Bearer ' + key },
@@ -1230,7 +1239,7 @@ function testAPIConnection() {
       basicText = basicOk ? extractResponsesText_(resp.getContentText()).substring(0, 80).trim() : ('HTTP ' + resp.getResponseCode());
     } else {
       var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
-      if (!key) throw new Error('GEMINI_API_KEY is not set.\n\nGo to Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties and add it.');
+      if (!key) throw new Error('GEMINI_API_KEY is not set.\n\nTo add it:\n1. Go to Extensions \u2192 Apps Script\n2. Click the \u2699\uFE0F gear icon (Project Settings)\n3. Scroll down to Script Properties\n4. Find GEMINI_API_KEY and paste your key as the Value\n   (or click "Add script property" if it\u2019s not there)\n5. Get a free key at aistudio.google.com');
       var gUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(key);
       var resp = fetchWithRetry_(gUrl, {
         method: 'post', contentType: 'application/json', muteHttpExceptions: true,
@@ -1378,6 +1387,18 @@ function getLLMProvider_() {
 
 function getDefaultModel_() {
   return DEFAULT_MODEL_BY_PROVIDER[getLLMProvider_()] || DEFAULT_MODEL_BY_PROVIDER.gemini;
+}
+
+/**
+ * Seeds the GEMINI_API_KEY script property with an empty value if it doesn't
+ * already exist. This makes the property visible in the Apps Script UI so
+ * teachers only need to paste in their key instead of also typing the name.
+ */
+function seedApiKeyProperty_() {
+  var props = PropertiesService.getScriptProperties();
+  if (!props.getProperty('GEMINI_API_KEY')) {
+    props.setProperty('GEMINI_API_KEY', '');
+  }
 }
 
 // ── Header mapping for form responses (verbose → short names) ──
@@ -1570,9 +1591,10 @@ function showHelp() {
     'Set Import location to <b>"Replace current sheet"</b> \u2192 click <b>Import data</b></li>' +
 
     '<li><b>Set your API key:</b><br>' +
-    'Go to <b>Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings \u2192 Script Properties</b><br>' +
-    'Add: <code>GEMINI_API_KEY</code> = your key<br>' +
+    'Go to <b>Extensions \u2192 Apps Script</b> \u2192 click the <b>\u2699\uFE0F gear icon</b> (Project Settings)<br>' +
+    'Scroll down to <b>Script Properties</b> \u2192 find <code>GEMINI_API_KEY</code> \u2192 paste your key as the <b>Value</b><br>' +
     '<span style="color:#666;">Get a free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></span><br>' +
+    '<span style="color:#666;">\uD83C\uDFA5 <a href="https://www.youtube.com/watch?v=qMyOoAe9DS4" target="_blank">Watch a 1-minute video walkthrough</a></span><br>' +
     '<span style="color:#666;">(Optional: set <code>LLM_PROVIDER</code> = <code>openai</code> and add <code>OPENAI_API_KEY</code>)</span></li>' +
 
     '<li><b>Test your connection:</b> Use <b>Test API Connection</b> from the Autograder menu.</li>' +
