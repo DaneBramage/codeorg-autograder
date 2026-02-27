@@ -1093,13 +1093,8 @@ function importFormResponses_() {
   var subHeaders = subSh.getRange(1, 1, 1, subSh.getLastColumn()).getValues()[0];
   var subMap = headers_(subHeaders);
 
-  var srcSh = findFormResponsesSheet_();
-  if (!srcSh) return 0;
-
-  var srcValues = srcSh.getDataRange().getValues();
-  if (srcValues.length <= 1) return 0;
-  var srcHead = srcValues[0];
-  var srcMap = headersSmart_(srcHead);
+  var srcSheets = findAllFormResponsesSheets_();
+  if (!srcSheets.length) return 0;
 
   // Build dedup key set from Submissions.
   // Key = timestamp(minute)|email|levelid — minute granularity avoids false
@@ -1115,35 +1110,43 @@ function importFormResponses_() {
   }
 
   var count = 0;
-  for (var r = 1; r < srcValues.length; r++) {
-    var row = srcValues[r];
-    var tsVal  = (srcMap.Timestamp !== undefined) ? row[srcMap.Timestamp] : new Date();
-    var emVal  = (srcMap.Email     !== undefined) ? row[srcMap.Email]     : '';
-    var first  = (srcMap.First     !== undefined) ? row[srcMap.First]     : '';
-    var last   = (srcMap.Last      !== undefined) ? row[srcMap.Last]      : '';
-    var period = (srcMap.Period    !== undefined) ? row[srcMap.Period]    : '';
-    var level  = (srcMap.LevelID   !== undefined) ? row[srcMap.LevelID]  : '';
-    var share  = (srcMap.ShareURL  !== undefined) ? row[srcMap.ShareURL] : '';
+  for (var s = 0; s < srcSheets.length; s++) {
+    var srcSh = srcSheets[s];
+    var srcValues = srcSh.getDataRange().getValues();
+    if (srcValues.length <= 1) continue;
+    var srcHead = srcValues[0];
+    var srcMap = headersSmart_(srcHead);
 
-    var key = [
-      normalizeTimestamp_(tsVal),
-      String(emVal || '').trim().toLowerCase(),
-      String(level || '').trim()
-    ].join('|');
-    if (existing[key]) continue;
+    for (var r = 1; r < srcValues.length; r++) {
+      var row = srcValues[r];
+      var tsVal  = (srcMap.Timestamp !== undefined) ? row[srcMap.Timestamp] : new Date();
+      var emVal  = (srcMap.Email     !== undefined) ? row[srcMap.Email]     : '';
+      var first  = (srcMap.First     !== undefined) ? row[srcMap.First]     : '';
+      var last   = (srcMap.Last      !== undefined) ? row[srcMap.Last]      : '';
+      var period = (srcMap.Period    !== undefined) ? row[srcMap.Period]    : '';
+      var level  = (srcMap.LevelID   !== undefined) ? row[srcMap.LevelID]  : '';
+      var share  = (srcMap.ShareURL  !== undefined) ? row[srcMap.ShareURL] : '';
 
-    var out = new Array(subHeaders.length).fill('');
-    if (subMap.Timestamp !== undefined) out[subMap.Timestamp] = tsVal || new Date();
-    if (subMap.Email     !== undefined) out[subMap.Email]     = emVal;
-    if (subMap.First     !== undefined) out[subMap.First]     = first;
-    if (subMap.Last      !== undefined) out[subMap.Last]      = last;
-    if (subMap.Period    !== undefined) out[subMap.Period]     = toNumber_(period);
-    if (subMap.LevelID   !== undefined) out[subMap.LevelID]   = level;
-    if (subMap.ShareURL  !== undefined) out[subMap.ShareURL]  = share;
+      var key = [
+        normalizeTimestamp_(tsVal),
+        String(emVal || '').trim().toLowerCase(),
+        String(level || '').trim()
+      ].join('|');
+      if (existing[key]) continue;
 
-    subSh.appendRow(out);
-    count++;
-    existing[key] = true;
+      var out = new Array(subHeaders.length).fill('');
+      if (subMap.Timestamp !== undefined) out[subMap.Timestamp] = tsVal || new Date();
+      if (subMap.Email     !== undefined) out[subMap.Email]     = emVal;
+      if (subMap.First     !== undefined) out[subMap.First]     = first;
+      if (subMap.Last      !== undefined) out[subMap.Last]      = last;
+      if (subMap.Period    !== undefined) out[subMap.Period]     = toNumber_(period);
+      if (subMap.LevelID   !== undefined) out[subMap.LevelID]   = level;
+      if (subMap.ShareURL  !== undefined) out[subMap.ShareURL]  = share;
+
+      subSh.appendRow(out);
+      count++;
+      existing[key] = true;
+    }
   }
 
   return count;
@@ -1411,14 +1414,18 @@ function headersSmart_(row1) {
 }
 
 function findFormResponsesSheet_() {
+  var sheets = findAllFormResponsesSheets_();
+  return sheets.length ? sheets[0] : null;
+}
+
+function findAllFormResponsesSheets_() {
   var ss = SpreadsheetApp.getActive();
-  var sh = ss.getSheetByName('Form Responses 1') || ss.getSheetByName('Form Responses');
-  if (sh) return sh;
+  var result = [];
   var all = ss.getSheets();
   for (var i = 0; i < all.length; i++) {
-    if (/^Form Responses/i.test(all[i].getName())) return all[i];
+    if (/^Form Responses/i.test(all[i].getName())) result.push(all[i]);
   }
-  return null;
+  return result;
 }
 
 function normalizeTimestamp_(v) {

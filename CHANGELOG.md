@@ -2,6 +2,14 @@
 
 All notable changes to the Game Lab Autograder.
 
+## [2.4.0] — 2026-02-27
+
+### Fixed
+- **"Assessment Level" form field now recognized** — the `createSubmissionForm()` function names the level dropdown "Assessment Level", but `headersSmart_()` didn't include that alias. Form submissions were written to Submissions with an empty LevelID, causing "No URL/LevelID" errors during grading. Added "Assessment Level" to the LevelID alias list.
+
+### Changed
+- **"Grade New Submissions" now imports from all Form Responses sheets** — if more than one form is linked (e.g., Form Responses 1 and Form Responses 2), the backfill import now scans all of them. Dedup logic prevents duplicates across sheets. `onFormSubmit` (real-time trigger) was already unaffected since it fires per-submission.
+
 ## [2.3.0] — 2026-02-24
 
 ### Added

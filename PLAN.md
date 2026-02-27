@@ -78,6 +78,8 @@ Sheets are **protected** with `setWarningOnly(true)`.
     - createSheetsFromSetup (builds Submissions, Criteria, Grade Views)
     - resetEverything (wipe all sheets)
     - buildGradeViewFormula_ (SORT/FILTER formula builder)
+ 3b. FORM CREATION
+    - createSubmissionForm (builds Google Form, links to spreadsheet, installs trigger)
  4. GRADING ENGINE
     - gradeNewRows (imports from form + grades ungraded)
     - gradeSelectedRows / gradeAllRows
@@ -94,15 +96,15 @@ Sheets are **protected** with `setWarningOnly(true)`.
     - emailSelectedRows / sendEmailForRow_
  8. FORM INTEGRATION
     - onFormSubmit (trigger: append + grade + email)
-    - importFormResponses_ (silent import helper)
+    - importFormResponses_ (silent import helper — scans all Form Responses sheets)
     - gradeAndEmailAllNew (one-click workflow)
+    - findFormResponsesSheet_ / findAllFormResponsesSheets_
  9. DIAGNOSTICS
     - testAPIConnection (combined basic + structured test)
 10. UTILITIES
-    - Sheet helpers, CSV parser, JSON normalization
-    - Cache helpers, header mapping
+    - Sheet helpers, JSON normalization
+    - Cache helpers, header mapping (headersSmart_ with form-field aliases)
 11. HELP DIALOG
-12. EMBEDDED CRITERIA CSV
 ```
 
 ---
@@ -120,6 +122,8 @@ Sheets are **protected** with `setWarningOnly(true)`.
 | 7 | Combined API test (basic + structured) | Fewer menu items; catches both connection and JSON issues |
 | 9 | Button feedback in setup dialog | Buttons disable + show status text while server-side code runs |
 | 10 | CSS grid for period checkboxes | Clean layout regardless of how many periods (no singleton rows) |
+| 11 | `createSubmissionForm()` builds the form automatically | Eliminates manual form setup errors; guarantees field names match `headersSmart_()` aliases |
+| 12 | `importFormResponses_()` scans all Form Responses sheets | Handles accidental duplicate forms; dedup keys prevent double-imports |
 
 ---
 
