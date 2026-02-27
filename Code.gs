@@ -260,14 +260,16 @@ function createSheetsFromSetup(newPeriods) {
     msg += '   File \u2192 Import \u2192 Upload \u2192 pick your CSV \u2192 "Replace current sheet"\n';
     msg += '2. Add your API key:\n';
     msg += '   Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings (gear icon)\n';
-    msg += '   Scroll to Script Properties \u2192 find GEMINI_API_KEY \u2192 paste your key as the Value\n';
-    msg += '   (Get a free key at aistudio.google.com)\n';
+    msg += '   Scroll to Script Properties \u2192 Edit script properties\n';
+    msg += '   Find GEMINI_API_KEY \u2192 paste your key as the Value \u2192 Save\n';
+    msg += '   (See Autograder \u2192 Help / Setup Guide for details)\n';
     msg += '3. Use "Test API Connection" from the Autograder menu to verify\n';
   } else {
     msg += '1. Add your API key:\n';
     msg += '   Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings (gear icon)\n';
-    msg += '   Scroll to Script Properties \u2192 find GEMINI_API_KEY \u2192 paste your key as the Value\n';
-    msg += '   (Get a free key at aistudio.google.com)\n';
+    msg += '   Scroll to Script Properties \u2192 Edit script properties\n';
+    msg += '   Find GEMINI_API_KEY \u2192 paste your key as the Value \u2192 Save\n';
+    msg += '   (See Autograder \u2192 Help / Setup Guide for details)\n';
     msg += '2. Use "Test API Connection" from the Autograder menu to verify\n';
   }
   msg += '\nSee "Help / Setup Guide" for full instructions.';
@@ -1239,7 +1241,7 @@ function testAPIConnection() {
       basicText = basicOk ? extractResponsesText_(resp.getContentText()).substring(0, 80).trim() : ('HTTP ' + resp.getResponseCode());
     } else {
       var key = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
-      if (!key) throw new Error('GEMINI_API_KEY is not set.\n\nTo add it:\n1. Go to Extensions \u2192 Apps Script\n2. Click the \u2699\uFE0F gear icon (Project Settings)\n3. Scroll down to Script Properties\n4. Find GEMINI_API_KEY and paste your key as the Value\n   (or click "Add script property" if it\u2019s not there)\n5. Get a free key at aistudio.google.com');
+      if (!key) throw new Error('GEMINI_API_KEY is not set.\n\nTo add it:\n1. Go to Extensions \u2192 Apps Script\n2. Click the \u2699\uFE0F gear icon (Project Settings)\n3. Scroll down to Script Properties\n4. Click "Edit script properties"\n5. Find GEMINI_API_KEY and paste your key as the Value\n6. Click "Save script properties"\n\nSee Autograder \u2192 Help / Setup Guide for how to get a free key.');
       var gUrl = 'https://generativelanguage.googleapis.com/v1beta/models/' + encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(key);
       var resp = fetchWithRetry_(gUrl, {
         method: 'post', contentType: 'application/json', muteHttpExceptions: true,
@@ -1592,8 +1594,9 @@ function showHelp() {
 
     '<li><b>Set your API key:</b><br>' +
     'Go to <b>Extensions \u2192 Apps Script</b> \u2192 click the <b>\u2699\uFE0F gear icon</b> (Project Settings)<br>' +
-    'Scroll down to <b>Script Properties</b> \u2192 find <code>GEMINI_API_KEY</code> \u2192 paste your key as the <b>Value</b><br>' +
-    '<span style="color:#666;">Get a free key at <a href="https://aistudio.google.com" target="_blank">aistudio.google.com</a></span><br>' +
+    'Scroll down to <b>Script Properties</b> \u2192 click <b>Edit script properties</b><br>' +
+    'Find <code>GEMINI_API_KEY</code> \u2192 paste your key as the <b>Value</b> \u2192 click <b>Save script properties</b><br>' +
+    '<span style="color:#666;">Get a free key at <a href="https://console.cloud.google.com" target="_blank">console.cloud.google.com</a></span><br>' +
     '<span style="color:#666;">\uD83C\uDFA5 <a href="https://www.youtube.com/watch?v=qMyOoAe9DS4" target="_blank">Watch a 1-minute video walkthrough</a></span><br>' +
     '<span style="color:#666;">(Optional: set <code>LLM_PROVIDER</code> = <code>openai</code> and add <code>OPENAI_API_KEY</code>)</span></li>' +
 

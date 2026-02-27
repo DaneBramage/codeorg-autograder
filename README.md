@@ -18,15 +18,16 @@ The fastest way to get started — everything is pre-configured:
 2. **File → Make a copy** (this gives you your own editable copy with the script and criteria already loaded)
 3. **Reload the spreadsheet** — the **Autograder** menu will appear
 4. **Run Initial Setup:** Click **Autograder → Initial Setup…**, check your class periods, and click **Create Sheets**
-5. **Add your API key:**
+5. **Authorize the script:** Google will ask you to approve permissions — this is normal. Click **Advanced → Go to Auto-Grader Script (unsafe)** and check all permission boxes. ([Why is this safe? See details below.](#-authorization--permissions))
+6. **Add your API key:**
    - Go to **Extensions → Apps Script**
    - Click the **⚙️ gear icon** (Project Settings) in the left sidebar
    - Scroll down to **Script Properties**
-   - Find `GEMINI_API_KEY` and paste your API key as the **Value**
+   - Find `GEMINI_API_KEY`, click **Edit script properties** and paste your API key as the **Value**
    - Click **Save script properties**
-   - Get a free key at [aistudio.google.com](https://aistudio.google.com) — 📺 [1-minute video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4)
-6. **Test:** Click **Autograder → Test API Connection** — you should see ✅ for both tests
-7. **Create your form:** Click **Autograder → Create Submission Form** — share the student link with your class
+   - Get a free key at [console.cloud.google.com](https://console.cloud.google.com) — 📺 [1-minute video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4)
+7. **Test:** Click **Autograder → Test API Connection** — you should see ✅ for both tests
+8. **Create your form:** Click **Autograder → Create Submission Form** — share the student link with your class
 
 **Done!** When a student submits, their code is automatically graded and emailed.
 
@@ -73,9 +74,9 @@ This creates:
 
 - Go to **Extensions → Apps Script** → click the **⚙️ gear icon** (Project Settings)
 - Scroll down to **Script Properties**
-- Find `GEMINI_API_KEY` and paste your API key as the **Value** (the property name is pre-created by Initial Setup)
+- Find `GEMINI_API_KEY`, click **Edit script properties**, and paste your API key as the **Value** (the property name is pre-created by Initial Setup)
 - If `GEMINI_API_KEY` doesn't appear, click **Add script property**, type `GEMINI_API_KEY` as the Property, and paste your key as the Value
-- Get a free key at [aistudio.google.com](https://aistudio.google.com)
+- Get a free key at [console.cloud.google.com](https://console.cloud.google.com)
 
 > 📺 **New to Google API keys?** Watch this [1-minute tutorial on YouTube](https://www.youtube.com/watch?v=qMyOoAe9DS4) for a quick walkthrough.
 
@@ -238,7 +239,7 @@ Set in **Extensions → Apps Script → ⚙️ gear icon (Project Settings) → 
 
 | Property | Required | Description |
 |---|---|---|
-| `GEMINI_API_KEY` | Yes (default) | Your Gemini API key ([get one free](https://aistudio.google.com)) — [video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4) |
+| `GEMINI_API_KEY` | Yes (default) | Your Gemini API key ([get one free](https://console.cloud.google.com)) — [video walkthrough](https://www.youtube.com/watch?v=qMyOoAe9DS4) |
 | `OPENAI_API_KEY` | If using OpenAI | Your OpenAI API key |
 | `LLM_PROVIDER` | No | `gemini` (default) or `openai` |
 
