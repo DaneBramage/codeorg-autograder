@@ -65,6 +65,15 @@ This creates:
 
 ### 6. Create & Link a Google Form
 
+- Click **Autograder → Create Submission Form**
+- This automatically creates a Google Form with the correct fields, links it to your spreadsheet, and installs the auto-grade trigger
+- You'll see a dialog with the student-facing URL to share
+
+**Done!** When a student submits, their code is automatically graded and emailed.
+
+<details>
+<summary>Manual alternative (if you prefer to create the form yourself)</summary>
+
 Create a Google Form with these fields:
 
 | Field | Type | Notes |
@@ -82,7 +91,7 @@ Then link it to your spreadsheet:
 2. Choose **Select existing spreadsheet** → pick your autograder spreadsheet
 3. This creates a "Form Responses 1" sheet
 
-Finally, set up the auto-grade trigger:
+Set up the auto-grade trigger:
 
 1. In **Extensions → Apps Script**, click the ⏰ **Triggers** icon (left sidebar)
 2. Click **+ Add Trigger**
@@ -90,7 +99,28 @@ Finally, set up the auto-grade trigger:
 4. Leave deployment set to **Head**
 5. Click **Save** and authorize when prompted
 
-**Done!** When a student submits, their code is automatically graded and emailed.
+</details>
+
+### ⚠️ Authorization & Permissions
+
+The first time you run any Autograder menu action (or when a trigger fires), Google will ask you to authorize the script. You'll see two screens:
+
+**1. "Google hasn't verified this app"** — This is normal. Every Apps Script that hasn't been published to the Google Workspace Marketplace shows this warning. Since you own this copy of the script and it runs entirely in your own Google account, it's safe to proceed:
+- Click **Advanced**
+- Click **Go to Auto-Grader Script (unsafe)**
+
+**2. Permission checkboxes** — Google asks you to approve each permission the script needs. **Yes, check all boxes.** Here's what each one does and why it's required:
+
+| Permission | Why the autograder needs it |
+|---|---|
+| **Read, compose, send… email from Gmail** | Sends grading results to students via `GmailApp.sendEmail()`. The script never reads or deletes your emails. |
+| **See, edit, create… Google Sheets** | Reads/writes the Submissions, Levels, Criteria, and Grade View sheets — this is the core of the autograder. |
+| **View and manage your forms in Google Drive** | Only used by **Create Submission Form** to build the Google Form. You can skip this if you create the form manually. |
+| **Connect to an external service** | Calls the Gemini or OpenAI API to grade student code, and fetches student source code from `studio.code.org`. |
+| **Allow this application to run when you are not present** | Enables the `onFormSubmit` trigger to auto-grade submissions even when you don't have the spreadsheet open. |
+| **Display and run third-party web content…** | Powers the setup dialog and help panel that appear inside the spreadsheet (Apps Script `HtmlService`). |
+
+> **🔒 Privacy note:** The script runs entirely in your own Google account. Your API keys are stored in your script's properties (not shared). Student code is sent only to the LLM API you configure. No data is sent to the autograder developer or any third party beyond the LLM provider. You can review the complete source code in [Code.gs](Code.gs).
 
 > **📧 Note on emails:** Student result emails use Google's built-in `GmailApp` service, authorized when you approve the trigger. Gmail limits: ~100 emails/day (consumer) or ~1,500/day (Google Workspace).
 
@@ -110,6 +140,7 @@ All menu actions operate on the **Submissions** sheet — never on Form Response
 | **Grade & Email All New** | Imports, grades, and emails results for all un-emailed students in one step | Batch grading at the end of a class or day |
 | **Email Selected Rows** | Sends result emails for rows you highlight in Submissions (re-sends even if already emailed) | Re-sending updated grades after re-grading, or sending after manual review |
 | **Sync Levels from Criteria** | Rebuilds the Levels sheet from LevelIDs found in the Criteria sheet. Preserves existing Enabled/Model settings. | You imported a new/updated criteria CSV and need the Levels sheet to match |
+| **Create Submission Form** | Creates a Google Form with the correct fields, links it to this spreadsheet, and installs the onFormSubmit trigger | First-time setup — replaces manual form creation |
 | **Test API Connection** | Verifies API key and structured JSON grading in one combined test | After initial setup, or when troubleshooting |
 | **Help / Setup Guide** | Opens the in-app help dialog | Any time you need a quick reference |
 

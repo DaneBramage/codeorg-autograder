@@ -61,6 +61,7 @@ function onOpen() {
     .addItem('Email Selected Rows',              'emailSelectedRows')
     .addSeparator()
     .addItem('Sync Levels from Criteria',      'syncLevelsFromCriteria')
+    .addItem('Create Submission Form',           'createSubmissionForm')
     .addItem('Test API Connection',              'testAPIConnection')
     .addSeparator()
     .addItem('Help / Setup Guide',               'showHelp')
@@ -216,7 +217,7 @@ function createSheetsFromSetup(newPeriods) {
   if (!crit) {
     crit = ss.insertSheet(SHEET_CRIT);
     crit.clear();
-    var critHeaders = ['LevelID', 'CriterionID', 'Points', 'Type', 'Description', 'Notes', 'Teacher Notes'];
+    var critHeaders = ['LevelID', 'CriterionID', 'Points', 'Type', 'Description'];
     crit.getRange(1, 1, 1, critHeaders.length).setValues([critHeaders]).setFontWeight('bold');
     crit.setFrozenRows(1);
   }
@@ -490,6 +491,138 @@ function applyLevelGroupBanding_(gv) {
     .setRanges([range])
     .build());
   gv.setConditionalFormatRules(rules);
+}
+
+
+// ═══════════════════════════════════════════════════════════════════════════════
+//  3b. FORM CREATION
+// ═══════════════════════════════════════════════════════════════════════════════
+
+/**
+ * Creates a Google Form linked to this spreadsheet, with the correct fields
+ * for student submissions. Also installs the onFormSubmit trigger.
+ *
+ * The form collects: Email Address (built-in), First Name, Last Name,
+ * Class Period (dropdown), Assessment Level (dropdown from Levels sheet),
+ * and Share URL.
+ *
+ * Safe to run multiple times — it will warn if a form is already linked.
+ */
+function createSubmissionForm() {
+  var ui = SpreadsheetApp.getUi();
+  var ss = SpreadsheetApp.getActive();
+
+  // Check if a form is already linked
+  if (findFormResponsesSheet_()) {
+    var resp = ui.alert(
+      'Form Already Linked',
+      'This spreadsheet already has a Form Responses sheet, which means a form is linked.\n\n' +
+      'Do you want to create a new form anyway? (The old one will remain linked.)',
+      ui.ButtonSet.YES_NO
+    );
+    if (resp !== ui.Button.YES) return;
+  }
+
+  // Check that Levels sheet has data (needed for the Assessment Level dropdown)
+  var lev = ss.getSheetByName(SHEET_LEVELS);
+  var levelIds = [];
+  if (lev && lev.getLastRow() > 1) {
+    var levData = lev.getRange(2, 1, lev.getLastRow() - 1, 1).getValues();
+    for (var i = 0; i < levData.length; i++) {
+      var id = String(levData[i][0] || '').trim();
+      if (id) levelIds.push(id);
+    }
+  }
+  if (!levelIds.length) {
+    ui.alert(
+      'No Levels Found',
+      'The Levels sheet is empty. Please run Initial Setup, import a Criteria CSV, ' +
+      'and run Sync Levels from Criteria before creating the form.',
+      ui.ButtonSet.OK
+    );
+    return;
+  }
+
+  ss.toast('Creating submission form\u2026', 'Autograder', -1);
+
+  // Build period choices from existing Grade View sheets
+  var periods = [];
+  for (var p = 1; p <= MAX_PERIODS; p++) {
+    if (ss.getSheetByName(GRADE_VIEW_PREFIX + p)) periods.push(String(p));
+  }
+  if (!periods.length) {
+    // Fallback: offer all 8 periods
+    for (var p2 = 1; p2 <= MAX_PERIODS; p2++) periods.push(String(p2));
+  }
+
+  // Create the form
+  var form = FormApp.create('Game Lab Autograder Submissions');
+  form.setDescription(
+    'Submit your Code.org Game Lab share link for grading.\n\n' +
+    'Make sure you have clicked "Share" in Code.org and copied the URL before submitting.'
+  );
+  form.setCollectEmail(true);
+  form.setLimitOneResponsePerUser(false);
+  form.setAllowResponseEdits(false);
+
+  // First Name
+  form.addTextItem()
+    .setTitle('First Name')
+    .setRequired(true);
+
+  // Last Name
+  form.addTextItem()
+    .setTitle('Last Name')
+    .setRequired(true);
+
+  // Class Period (dropdown)
+  var periodItem = form.addListItem();
+  periodItem.setTitle('Class Period');
+  periodItem.setRequired(true);
+  periodItem.setChoiceValues(periods);
+
+  // Assessment Level (dropdown)
+  var levelItem = form.addListItem();
+  levelItem.setTitle('Assessment Level');
+  levelItem.setRequired(true);
+  levelItem.setChoiceValues(levelIds);
+
+  // Share URL
+  form.addTextItem()
+    .setTitle('Share URL')
+    .setHelpText('Paste your Code.org Game Lab share link (e.g., https://studio.code.org/projects/gamelab/abc123/)')
+    .setRequired(true);
+
+  // Link form responses to this spreadsheet
+  form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+
+  // Install onFormSubmit trigger (if not already installed)
+  var existingTriggers = ScriptApp.getProjectTriggers();
+  var hasFormTrigger = existingTriggers.some(function(t) {
+    return t.getHandlerFunction() === 'onFormSubmit' &&
+           t.getEventType() === ScriptApp.EventType.ON_FORM_SUBMIT;
+  });
+  if (!hasFormTrigger) {
+    ScriptApp.newTrigger('onFormSubmit')
+      .forSpreadsheet(ss)
+      .onFormSubmit()
+      .create();
+  }
+
+  ss.toast('Form created!', 'Autograder', 3);
+
+  var formUrl = form.getEditUrl();
+  var publishedUrl = form.getPublishedUrl();
+  ui.alert(
+    'Form Created!',
+    'Your submission form has been created and linked to this spreadsheet.\n\n' +
+    '\u2705 Form responses will appear in a new "Form Responses" tab\n' +
+    '\u2705 The onFormSubmit trigger has been installed\n\n' +
+    'Student link (share this):\n' + publishedUrl + '\n\n' +
+    'Edit form:\n' + formUrl + '\n\n' +
+    'You can find the form in your Google Drive.',
+    ui.ButtonSet.OK
+  );
 }
 
 
@@ -1348,9 +1481,7 @@ function loadCriteriaByLevel_() {
       CriterionID: row[head.CriterionID],
       Points:      row[head.Points],
       Type:        row[head.Type],
-      Description: row[head.Description],
-      Notes:       (head.Notes !== undefined ? row[head.Notes] : ''),
-      TeacherNotes:(head['Teacher Notes'] !== undefined ? row[head['Teacher Notes']] : '')
+      Description: row[head.Description]
     });
   }
   return map;
@@ -1603,25 +1734,11 @@ function showHelp() {
 
     '<li><b>Test your connection:</b> Use <b>Test API Connection</b> from the Autograder menu.</li>' +
 
-    '<li><b>Create a Google Form</b> with these fields:<br>' +
-    '<table style="font-size:12px;border-collapse:collapse;margin:4px 0 4px 0;">' +
-    '<tr><td style="padding:2px 8px;border:1px solid #ddd;">Email Address</td><td style="padding:2px 8px;border:1px solid #ddd;">Settings \u2192 Collect email addresses</td></tr>' +
-    '<tr><td style="padding:2px 8px;border:1px solid #ddd;">First Name</td><td style="padding:2px 8px;border:1px solid #ddd;">Short answer</td></tr>' +
-    '<tr><td style="padding:2px 8px;border:1px solid #ddd;">Last Name</td><td style="padding:2px 8px;border:1px solid #ddd;">Short answer</td></tr>' +
-    '<tr><td style="padding:2px 8px;border:1px solid #ddd;">Class Period</td><td style="padding:2px 8px;border:1px solid #ddd;">Dropdown: 1, 2, 3\u2026 (match your periods)</td></tr>' +
-    '<tr><td style="padding:2px 8px;border:1px solid #ddd;">Assessment Level</td><td style="padding:2px 8px;border:1px solid #ddd;">Dropdown: Lesson-03-Level-08, etc.</td></tr>' +
-    '<tr><td style="padding:2px 8px;border:1px solid #ddd;">Share URL</td><td style="padding:2px 8px;border:1px solid #ddd;">Short answer (the Code.org share link)</td></tr>' +
-    '</table></li>' +
+    '<li><b>Create and link a Google Form:</b><br>' +
+    'Run <b>Autograder \u2192 Create Submission Form</b> from the menu.<br>' +
+    'This automatically creates a properly configured form, links it to this spreadsheet, and installs the auto-grade trigger.<br>' +
+    '<span style="color:#666;font-size:12px;">Alternatively, you can create a form manually \u2014 see the README for field details.</span></li>' +
 
-    '<li><b>Link the form to this spreadsheet:</b><br>' +
-    'In the Form editor \u2192 <b>Responses</b> tab \u2192 click the green Sheets icon \u2192 <b>Select existing spreadsheet</b> \u2192 pick this spreadsheet.</li>' +
-
-    '<li><b>Set up the auto-grade trigger:</b><br>' +
-    'In <b>Extensions \u2192 Apps Script</b>, click the \u23F0 <b>Triggers</b> icon (left sidebar)<br>' +
-    'Click <b>+ Add Trigger</b><br>' +
-    'Function: <code>onFormSubmit</code> | Source: <b>From spreadsheet</b> | Event: <b>On form submit</b><br>' +
-    'Leave "Which deployment should run" set to <b>Head</b><br>' +
-    'Click Save and authorize when prompted.</li>' +
 
     '<li><b>Done!</b> When a student submits the form, their code is automatically graded and they receive an email with their score.</li>' +
     '</ol>' +
