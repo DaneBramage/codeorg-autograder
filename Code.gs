@@ -1386,7 +1386,8 @@ function headersSmart_(row1) {
     First:     ['First', 'First Name', 'Given Name'],
     Last:      ['Last', 'Last Name', 'Family Name', 'Surname'],
     Period:    ['Period', 'Class Period', 'Class', 'Section'],
-    LevelID:   ['LevelID', 'Level ID', 'Which assessment level',
+    LevelID:   ['LevelID', 'Level ID', 'Assessment Level',
+                'Which assessment level',
                 'Which assessment level are you submitting'],
     ShareURL:  ['ShareURL', 'Share URL', 'URL', 'Project URL', 'Project Link',
                 'Paste the share URL', 'Paste the URL']
