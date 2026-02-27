@@ -264,6 +264,7 @@ function createSheetsFromSetup(newPeriods) {
     msg += '   Find GEMINI_API_KEY \u2192 paste your key as the Value \u2192 Save\n';
     msg += '   (See Autograder \u2192 Help / Setup Guide for details)\n';
     msg += '3. Use "Test API Connection" from the Autograder menu to verify\n';
+    msg += '4. Use "Create Submission Form" to build a Google Form for students\n';
   } else {
     msg += '1. Add your API key:\n';
     msg += '   Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings (gear icon)\n';
@@ -271,6 +272,7 @@ function createSheetsFromSetup(newPeriods) {
     msg += '   Find GEMINI_API_KEY \u2192 paste your key as the Value \u2192 Save\n';
     msg += '   (See Autograder \u2192 Help / Setup Guide for details)\n';
     msg += '2. Use "Test API Connection" from the Autograder menu to verify\n';
+    msg += '3. Use "Create Submission Form" to build a Google Form for students\n';
   }
   msg += '\nSee "Help / Setup Guide" for full instructions.';
   return msg;
