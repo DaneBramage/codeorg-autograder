@@ -21,7 +21,6 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 var SHEET_SUB    = 'Submissions';
-var SHEET_LEVELS = 'Levels';
 var SHEET_CRIT   = 'Criteria';
 var GRADE_VIEW_PREFIX = 'Grade View P';
 var MAX_PERIODS  = 8;
@@ -60,7 +59,6 @@ function onOpen() {
     .addItem('Grade & Email All New',            'gradeAndEmailAllNew')
     .addItem('Email Selected Rows',              'emailSelectedRows')
     .addSeparator()
-    .addItem('Sync Levels from Criteria',      'syncLevelsFromCriteria')
     .addItem('Create Submission Form',           'createSubmissionForm')
     .addItem('Test API Connection',              'testAPIConnection')
     .addSeparator()
@@ -145,7 +143,6 @@ function buildSetupHtml_(existingPeriods) {
     '\u26A0\uFE0F  RESET EVERYTHING\\n\\n' +
     'This will permanently delete the following sheets and ALL their data:\\n\\n' +
     '  \u2022 Submissions (all grades, feedback, and status)\\n' +
-    '  \u2022 Levels\\n' +
     '  \u2022 Criteria\\n' +
     '  \u2022 All Grade View P# sheets\\n\\n' +
     'The following will NOT be affected:\\n\\n' +
@@ -166,7 +163,7 @@ function buildSetupHtml_(existingPeriods) {
 }
 
 /**
- * Called from the setup dialog. Creates Submissions, Levels, Criteria (if missing)
+ * Called from the setup dialog. Creates Submissions, Criteria (if missing)
  * and any new Grade View P# sheets for the selected periods.
  */
 function createSheetsFromSetup(newPeriods) {
@@ -179,37 +176,6 @@ function createSheetsFromSetup(newPeriods) {
     sub.clear();
     sub.getRange(1, 1, 1, SUB_HEADERS.length).setValues([SUB_HEADERS]).setFontWeight('bold');
     sub.setFrozenRows(1);
-
-    // LevelID dropdown validation in column F (index 6)
-    var lvlRule = SpreadsheetApp.newDataValidation()
-      .requireValueInRange(ss.getSheetByName(SHEET_LEVELS)
-        ? ss.getSheetByName(SHEET_LEVELS).getRange('A2:A')
-        : sub.getRange('F2:F'), // fallback; will fix after Levels created
-        true)
-      .setAllowInvalid(false)
-      .setHelpText('Pick a LevelID from the Levels sheet')
-      .build();
-    // We'll set this after Levels sheet exists (see below)
-  }
-
-  // --- Levels ---
-  var lev = ss.getSheetByName(SHEET_LEVELS);
-  if (!lev) {
-    lev = ss.insertSheet(SHEET_LEVELS);
-    lev.clear();
-    var levHeaders = ['LevelID', 'LevelURL', 'Enabled', 'Model'];
-    lev.getRange(1, 1, 1, levHeaders.length).setValues([levHeaders]).setFontWeight('bold');
-    lev.setFrozenRows(1);
-  }
-
-  // Now set LevelID validation on Submissions if it was just created
-  if (sub && lev) {
-    var lvlValRule = SpreadsheetApp.newDataValidation()
-      .requireValueInRange(lev.getRange('A2:A'), true)
-      .setAllowInvalid(false)
-      .setHelpText('Pick a LevelID from the Levels sheet')
-      .build();
-    sub.getRange('F2:F').setDataValidation(lvlValRule);
   }
 
   // --- Criteria ---
@@ -273,7 +239,6 @@ function createSheetsFromSetup(newPeriods) {
     LevelID: 180, ShareURL: 160, ChannelID: 100,
     Score: 55, MaxScore: 75, Status: 80, Notes: 300, EmailedAt: 140
   });
-  setColumnWidths_(lev, { LevelID: 200, LevelURL: 400, Enabled: 70, Model: 160 });
   // Criteria — auto-resize is fine for the rubric descriptions
   if (crit) {
     var critCols = crit.getLastColumn();
@@ -281,109 +246,23 @@ function createSheetsFromSetup(newPeriods) {
   }
 
   var critCount = crit ? Math.max(crit.getLastRow() - 1, 0) : 0;
-  var levCount  = lev  ? Math.max(lev.getLastRow() - 1, 0)  : 0;
 
   var msg = 'Setup complete!\n\n';
   msg += '\u2022 Submissions sheet: ready\n';
-  msg += '\u2022 Levels: ' + levCount + ' level(s)\n';
   msg += '\u2022 Criteria: ' + critCount + ' rubric row(s)\n';
   if (createdCount) msg += '\u2022 Created ' + createdCount + ' new Grade View sheet(s)\n';
   msg += '\nNext steps:\n';
   if (!critCount) {
     msg += '1. Import a criteria CSV into the Criteria sheet:\n';
     msg += '   File \u2192 Import \u2192 Upload \u2192 pick your CSV \u2192 "Replace current sheet"\n';
-    msg += '2. Run "Sync Levels from Criteria" from the Autograder menu\n';
-    msg += '3. Set GEMINI_API_KEY in Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties\n';
-    msg += '4. Use "Test API Connection" from the Autograder menu to verify\n';
+    msg += '2. Set GEMINI_API_KEY in Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties\n';
+    msg += '3. Use "Test API Connection" from the Autograder menu to verify\n';
   } else {
     msg += '1. Set GEMINI_API_KEY in Extensions \u2192 Apps Script \u2192 Project Settings \u2192 Script Properties\n';
     msg += '2. Use "Test API Connection" from the Autograder menu to verify\n';
   }
   msg += '\nSee "Help / Setup Guide" for full instructions.';
   return msg;
-}
-
-/**
- * Rebuilds the Levels sheet from the LevelIDs found in the Criteria sheet.
- * Adds any missing levels with Enabled=true. Preserves existing Enabled and
- * Model settings for levels that already have a row. Does not touch
- * Submissions or Grade View sheets.
- *
- * Use this after importing a new criteria CSV into the Criteria sheet.
- */
-function syncLevelsFromCriteria() {
-  var ui = SpreadsheetApp.getUi();
-  var ss = SpreadsheetApp.getActive();
-
-  var crit = ss.getSheetByName(SHEET_CRIT);
-  if (!crit || crit.getLastRow() < 2) {
-    ui.alert('The Criteria sheet is empty.\n\n' +
-      'Import a criteria CSV first:\n' +
-      'Go to the Criteria sheet \u2192 File \u2192 Import \u2192 Upload \u2192 ' +
-      'pick your CSV \u2192 "Replace current sheet".');
-    return;
-  }
-
-  // Collect unique LevelIDs from Criteria
-  var critData = crit.getDataRange().getValues();
-  var critHead = headers_(critData[0]);
-  if (critHead.LevelID === undefined) {
-    ui.alert('Criteria sheet is missing a LevelID column.');
-    return;
-  }
-  var critLevels = {};
-  for (var r = 1; r < critData.length; r++) {
-    var id = String(critData[r][critHead.LevelID] || '').trim();
-    if (id) critLevels[id] = true;
-  }
-  var allLevelIds = Object.keys(critLevels).sort();
-
-  // Read existing Levels rows (preserve Enabled/Model settings)
-  var lev = ss.getSheetByName(SHEET_LEVELS);
-  var existingSettings = {};
-  if (lev && lev.getLastRow() > 1) {
-    var levData = lev.getDataRange().getValues();
-    var levHead = headers_(levData[0]);
-    for (var i = 1; i < levData.length; i++) {
-      var lid = String(levData[i][levHead.LevelID] || '').trim();
-      if (lid) {
-        existingSettings[lid] = {
-          enabled: (levHead.Enabled !== undefined) ? levData[i][levHead.Enabled] : true,
-          model:   (levHead.Model   !== undefined) ? levData[i][levHead.Model]   : ''
-        };
-      }
-    }
-  }
-
-  // Rebuild Levels sheet
-  if (!lev) lev = ss.insertSheet(SHEET_LEVELS);
-  lev.clear();
-  var levHeaders = ['LevelID', 'LevelURL', 'Enabled', 'Model'];
-  lev.getRange(1, 1, 1, levHeaders.length).setValues([levHeaders]).setFontWeight('bold');
-
-  var levelRows = allLevelIds.map(function(id) {
-    var prev = existingSettings[id];
-    return [
-      id,
-      levelIdToUrl_(id),
-      prev ? prev.enabled : true,
-      prev ? (prev.model || '') : ''
-    ];
-  });
-  if (levelRows.length) {
-    lev.getRange(2, 1, levelRows.length, 4).setValues(levelRows);
-    lev.getRange(2, 3, levelRows.length, 1).insertCheckboxes();
-  }
-  lev.setFrozenRows(1);
-  setColumnWidths_(lev, { LevelID: 200, LevelURL: 400, Enabled: 70, Model: 160 });
-
-  var newCount = allLevelIds.filter(function(id) { return !existingSettings[id]; }).length;
-
-  ui.alert('Levels synced!\n\n' +
-    '\u2022 ' + allLevelIds.length + ' level(s) from Criteria sheet\n' +
-    (newCount ? '\u2022 ' + newCount + ' new level(s) added\n' : '') +
-    '\u2022 Existing Enabled/Model settings preserved\n\n' +
-    'Submissions and Grade View sheets were not changed.');
 }
 
 /**
@@ -417,7 +296,7 @@ function buildGradeViewFormula_(periodNum) {
  */
 function resetEverything() {
   var ss = SpreadsheetApp.getActive();
-  var toDelete = [SHEET_SUB, SHEET_LEVELS, SHEET_CRIT];
+  var toDelete = [SHEET_SUB, SHEET_CRIT];
   for (var p = 1; p <= MAX_PERIODS; p++) toDelete.push(GRADE_VIEW_PREFIX + p);
 
   // Make sure there's always at least one sheet (Sheets requires it)
@@ -503,7 +382,7 @@ function applyLevelGroupBanding_(gv) {
  * for student submissions. Also installs the onFormSubmit trigger.
  *
  * The form collects: Email Address (built-in), First Name, Last Name,
- * Class Period (dropdown), Assessment Level (dropdown from Levels sheet),
+ * Class Period (dropdown), Assessment Level (dropdown from Criteria sheet),
  * and Share URL.
  *
  * Safe to run multiple times — it will warn if a form is already linked.
@@ -523,21 +402,25 @@ function createSubmissionForm() {
     if (resp !== ui.Button.YES) return;
   }
 
-  // Check that Levels sheet has data (needed for the Assessment Level dropdown)
-  var lev = ss.getSheetByName(SHEET_LEVELS);
+  // Collect unique LevelIDs from the Criteria sheet
+  var crit = ss.getSheetByName(SHEET_CRIT);
   var levelIds = [];
-  if (lev && lev.getLastRow() > 1) {
-    var levData = lev.getRange(2, 1, lev.getLastRow() - 1, 1).getValues();
-    for (var i = 0; i < levData.length; i++) {
-      var id = String(levData[i][0] || '').trim();
-      if (id) levelIds.push(id);
+  if (crit && crit.getLastRow() > 1) {
+    var critData = crit.getDataRange().getValues();
+    var critHead = headers_(critData[0]);
+    if (critHead.LevelID !== undefined) {
+      var seen = {};
+      for (var i = 1; i < critData.length; i++) {
+        var id = String(critData[i][critHead.LevelID] || '').trim();
+        if (id && !seen[id]) { levelIds.push(id); seen[id] = true; }
+      }
+      levelIds.sort();
     }
   }
   if (!levelIds.length) {
     ui.alert(
-      'No Levels Found',
-      'The Levels sheet is empty. Please run Initial Setup, import a Criteria CSV, ' +
-      'and run Sync Levels from Criteria before creating the form.',
+      'No Assessment Levels Found',
+      'The Criteria sheet has no LevelIDs. Please import a Criteria CSV first.',
       ui.ButtonSet.OK
     );
     return;
@@ -727,7 +610,6 @@ function gradeRows_(rowNums) {
   var data = sh.getDataRange().getValues();
   var head = headers_(data[0]);
   var critByLevel = loadCriteriaByLevel_();
-  var enabledLevels = loadEnabledLevels_();
   var total = rowNums.length;
 
   rowNums.forEach(function(rowNum, idx) {
@@ -746,11 +628,6 @@ function gradeRows_(rowNums) {
 
       if (!url || !levelId) {
         writeRow_(sh, rowNum, head, { Status: 'No URL/LevelID', Score: 0, Notes: '' });
-        return;
-      }
-
-      if (!enabledLevels[levelId]) {
-        writeRow_(sh, rowNum, head, { Status: 'Level disabled/unknown', Score: 0, Notes: '' });
         return;
       }
 
@@ -898,7 +775,7 @@ function geminiGrade_(levelId, src, llmCrits) {
 
   var built = buildRubricPrompt_(levelId, src, llmCrits);
   var expectedIds = built.expectedIds;
-  var model = getModelForLevel_(levelId) || getDefaultModel_();
+  var model = getDefaultModel_();
 
   var url = 'https://generativelanguage.googleapis.com/v1beta/models/' +
     encodeURIComponent(model) + ':generateContent?key=' + encodeURIComponent(key);
@@ -965,7 +842,7 @@ function openaiGrade_(levelId, src, llmCrits) {
     strict: true
   };
 
-  var model  = getModelForLevel_(levelId) || getDefaultModel_();
+  var model  = getDefaultModel_();
   var result = callResponsesStructured_(model, key, built.system, built.user, schema);
   var parsed = normalizeAutogradeJson_(result.text, expectedIds);
 
@@ -1465,7 +1342,7 @@ function setColumnWidths_(sh, widthMap) {
   }
 }
 
-// ── Levels & Criteria ──
+// ── Criteria ──
 
 function loadCriteriaByLevel_() {
   var sh = getSheet_(SHEET_CRIT);
@@ -1485,47 +1362,6 @@ function loadCriteriaByLevel_() {
     });
   }
   return map;
-}
-
-function loadEnabledLevels_() {
-  var sh = getSheet_(SHEET_LEVELS);
-  var vals = sh.getDataRange().getValues();
-  var head = headers_(vals[0]);
-  var set = {};
-  for (var i = 1; i < vals.length; i++) {
-    var id = String(vals[i][head.LevelID] || '').trim();
-    var en = String(vals[i][head.Enabled]).toUpperCase() !== 'FALSE';
-    if (id) set[id] = en;
-  }
-  return set;
-}
-
-function getModelForLevel_(levelId) {
-  var sh = SpreadsheetApp.getActive().getSheetByName(SHEET_LEVELS);
-  if (!sh) return '';
-  var vals = sh.getDataRange().getValues();
-  var head = headers_(vals[0]);
-  for (var i = 1; i < vals.length; i++) {
-    var id = String(vals[i][head.LevelID] || '').trim();
-    if (id === levelId) {
-      return (head.Model !== undefined ? String(vals[i][head.Model] || '').trim() : '');
-    }
-  }
-  return '';
-}
-
-/**
- * Converts a LevelID (e.g. "Lesson-05-Level-07") into the Code.org level URL.
- * Special case: Lesson-21-Side-Scroller → lessons/21/levels/2
- */
-function levelIdToUrl_(levelId) {
-  var base = 'https://studio.code.org/courses/csd-2025/units/3/';
-  // Lesson-21-Side-Scroller
-  if (/Lesson-21/i.test(levelId)) return base + 'lessons/21/levels/2';
-  // Standard pattern: Lesson-NN-Level-NN
-  var m = String(levelId).match(/Lesson-(\d+)-Level-(\d+)/i);
-  if (m) return base + 'lessons/' + parseInt(m[1], 10) + '/levels/' + parseInt(m[2], 10);
-  return '';
 }
 
 // ── LLM config ──
@@ -1723,8 +1559,7 @@ function showHelp() {
 
     '<li><b>Import a criteria CSV</b> into the Criteria sheet:<br>' +
     'Go to the <b>Criteria</b> sheet \u2192 <b>File \u2192 Import \u2192 Upload</b> \u2192 pick your CSV<br>' +
-    'Set Import location to <b>"Replace current sheet"</b> \u2192 click <b>Import data</b><br>' +
-    'Then run <b>Sync Levels from Criteria</b> from the Autograder menu.</li>' +
+    'Set Import location to <b>"Replace current sheet"</b> \u2192 click <b>Import data</b></li>' +
 
     '<li><b>Set your API key:</b><br>' +
     'Go to <b>Extensions \u2192 Apps Script \u2192 \u2699\uFE0F Project Settings \u2192 Script Properties</b><br>' +
@@ -1745,14 +1580,14 @@ function showHelp() {
 
     '<h3 style="margin:12px 0 6px 0;font-size:14px;">\uD83D\uDCCB Menu Reference</h3>' +
     '<ul style="margin:0 0 12px 18px;padding:0;">' +
-    '<li><b>Initial Setup\u2026</b> \u2014 creates Submissions, Levels, Criteria, and Grade View sheets. Use this the first time, or to add a new period mid-year. Won\u2019t overwrite sheets that already exist.' +
-    '<br><span style="color:#666;font-size:12px;">\u2022 <em>Reset Everything</em> (inside the dialog) permanently deletes Submissions, Levels, Criteria, and all Grade View P# sheets. <b>Form Responses 1 is not affected.</b> Use this for a fresh start at the beginning of a new semester. You\u2019ll need to re-run Initial Setup and re-import your Criteria CSV afterward.</span></li>' +
+    '<li><b>Initial Setup\u2026</b> \u2014 creates Submissions, Criteria, and Grade View sheets. Use this the first time, or to add a new period mid-year. Won\u2019t overwrite sheets that already exist.' +
+    '<br><span style="color:#666;font-size:12px;">\u2022 <em>Reset Everything</em> (inside the dialog) permanently deletes Submissions, Criteria, and all Grade View P# sheets. <b>Form Responses 1 is not affected.</b> Use this for a fresh start at the beginning of a new semester. You\u2019ll need to re-run Initial Setup and re-import your Criteria CSV afterward.</span></li>' +
     '<li><b>Grade New Submissions</b> \u2014 imports new form responses (if any), then grades all ungraded rows in Submissions</li>' +
     '<li><b>Re-grade Selected Rows</b> \u2014 re-grades the rows you highlight in Submissions (e.g., after editing criteria)</li>' +
     '<li><b>Re-grade All Rows</b> \u2014 re-grades every row in Submissions (slow, uses API credits)</li>' +
     '<li><b>Grade & Email All New</b> \u2014 imports, grades, and emails results in one step</li>' +
     '<li><b>Email Selected Rows</b> \u2014 sends result emails for rows you highlight in Submissions</li>' +
-    '<li><b>Sync Levels from Criteria</b> \u2014 rebuilds the Levels sheet from the LevelIDs in the Criteria sheet. Use this after importing a new criteria CSV. Preserves your existing Enabled/Model settings.</li>' +
+    '<li><b>Create Submission Form</b> \u2014 creates a Google Form with the correct fields, links it to this spreadsheet, and installs the auto-grade trigger</li>' +
     '<li><b>Test API Connection</b> \u2014 verifies your API key and structured JSON grading work</li>' +
     '</ul>' +
 
@@ -1760,7 +1595,6 @@ function showHelp() {
     '<ul style="margin:0 0 12px 18px;padding:0;">' +
     '<li><b>Submissions</b> \u2014 all student submissions and grades (the main data sheet)</li>' +
     '<li><b>Grade View P#</b> \u2014 read-only views filtered by period, sorted by level then name</li>' +
-    '<li><b>Levels</b> \u2014 enable/disable levels, set per-level model overrides</li>' +
     '<li><b>Criteria</b> \u2014 rubric criteria (imported from a CSV; you can edit descriptions/points directly)</li>' +
     '</ul>' +
 

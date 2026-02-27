@@ -23,8 +23,7 @@
 | `Form Responses 1` | Google Forms (automatic) | Raw form submissions. **Never edited by the script.** |
 | `Submissions` | Setup wizard | Normalized copy of every submission. All grading reads/writes happen here. |
 | `Grade View P1` … `P8` | Setup wizard (per checked period) | **Read-only formula views.** Auto-populated from Submissions. Sorted by LevelID then Last name. |
-| `Levels` | Setup wizard | Master level list — 16 rows. Enabled checkbox, LevelURL to Code.org, optional per-level Model override. |
-| `Criteria` | Setup wizard | Master rubric — all criterion rows from the embedded CSV. |
+| `Criteria` | Setup wizard | Master rubric — all criterion rows from the imported CSV. LevelIDs in the criteria determine which levels are gradeable. |
 
 ### 2.2 — Data Flow
 
@@ -76,7 +75,7 @@ Sheets are **protected** with `setWarningOnly(true)`.
  2. MENU (onOpen)
  3. SETUP WIZARD
     - showSetupDialog / buildSetupHtml_ (HTML dialog with period picker)
-    - createSheetsFromSetup (builds Submissions, Levels, Criteria, Grade Views)
+    - createSheetsFromSetup (builds Submissions, Criteria, Grade Views)
     - resetEverything (wipe all sheets)
     - buildGradeViewFormula_ (SORT/FILTER formula builder)
  4. GRADING ENGINE
@@ -101,7 +100,7 @@ Sheets are **protected** with `setWarningOnly(true)`.
     - testAPIConnection (combined basic + structured test)
 10. UTILITIES
     - Sheet helpers, CSV parser, JSON normalization
-    - Cache helpers, header mapping, levelIdToUrl_
+    - Cache helpers, header mapping
 11. HELP DIALOG
 12. EMBEDDED CRITERIA CSV
 ```
@@ -118,8 +117,7 @@ Sheets are **protected** with `setWarningOnly(true)`.
 | 4 | Form import built into "Grade New Submissions" | One button does everything; eliminates "sync" confusion |
 | 5 | Selection actions require Submissions sheet active | Prevents confusing "no rows selected" when on wrong sheet |
 | 6 | Setup dialog is additive (never overwrites) | Safe to re-run; Reset Everything is separate and explicit |
-| 7 | LevelURL column on Levels sheet | Teacher convenience — click to jump to the Code.org level |
-| 8 | Combined API test (basic + structured) | Fewer menu items; catches both connection and JSON issues |
+| 7 | Combined API test (basic + structured) | Fewer menu items; catches both connection and JSON issues |
 | 9 | Button feedback in setup dialog | Buttons disable + show status text while server-side code runs |
 | 10 | CSS grid for period checkboxes | Clean layout regardless of how many periods (no singleton rows) |
 
@@ -132,7 +130,6 @@ Sheets are **protected** with `setWarningOnly(true)`.
 - **Formula-driven Grade View P#** sheets replace manual copy/paste workflows
 - **Setup wizard** with HTML dialog and period picker (was a flat `setupSheets()` call)
 - **LevelIDs cleaned** — removed legacy short IDs (L3-08) and non-standard levels (adv, a, c variants)
-- **LevelURL column** replaces LevelName on Levels sheet (clickable Code.org links)
 
 ### Menu
 - **"Grade New Submissions"** now auto-imports from form first (merged old "Sync from Form Responses")

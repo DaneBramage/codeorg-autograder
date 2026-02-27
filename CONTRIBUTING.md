@@ -29,11 +29,9 @@ Criteria live in **CSV files** in the `criteria/` folder. Teachers import them i
 |---|---|
 | `criteria/*.csv` (files in repo) | Shareable rubric definitions — one CSV per curriculum unit |
 | **Criteria sheet** (in Google Sheets) | **Runtime source of truth** — the grading engine reads from here |
-| **Levels sheet** (in Google Sheets) | Auto-generated from Criteria via "Sync Levels from Criteria" |
 
 **How it works:**
 - Teachers import a CSV into the Criteria sheet (File → Import → Upload → "Replace current sheet").
-- They run **Sync Levels from Criteria** to rebuild the Levels sheet from the LevelIDs found in the Criteria sheet.
 - The grading engine reads criteria exclusively from the **Criteria sheet** at runtime.
 - Teachers can edit the Criteria sheet directly (tweak descriptions, adjust points) and those changes take effect immediately.
 - There is no embedded CSV in `Code.gs` — criteria and code are completely decoupled.
@@ -41,8 +39,7 @@ Criteria live in **CSV files** in the `criteria/` folder. Teachers import them i
 **For developers adding/changing criteria:**
 1. Edit the appropriate CSV file in `criteria/` (or create a new one for a different curriculum).
 2. Import it into the Criteria sheet in your test spreadsheet (File → Import → "Replace current sheet").
-3. Run **Sync Levels from Criteria** to update the Levels sheet.
-4. Grade a known submission to verify the new criteria work as expected.
+3. Grade a known submission to verify the new criteria work as expected.
 
 > **Tip:** Since criteria live in a plain CSV file, anyone can contribute new rubrics for different courses or units without touching `Code.gs` at all.
 
@@ -50,16 +47,14 @@ Criteria live in **CSV files** in the `criteria/` folder. Teachers import them i
 
 1. **Add criteria rows** to the appropriate CSV in `criteria/`:
    ```
-   LevelID,CriterionID,Points,Type,Description,Notes,Teacher Notes
-   Lesson-XX-Level-YY,criterion_name,3,llm_check,"Description of what to check",,
+   LevelID,CriterionID,Points,Type,Description
+   Lesson-XX-Level-YY,criterion_name,3,llm_check,"Description of what to check"
    ```
    Use zero-padded numbers (e.g., `Lesson-03-Level-08`) so levels sort correctly.
 
 2. **Import the CSV** into the Criteria sheet (File → Import → "Replace current sheet").
 
-3. **Run "Sync Levels from Criteria"** from the Autograder menu — this adds the new level to the Levels sheet.
-
-4. **Test** by grading a known submission for that level.
+3. **Test** by grading a known submission for that level.
 
 ### Criterion Types
 
@@ -80,7 +75,7 @@ There's no automated test suite (it's Apps Script). Manual testing workflow:
 
 1. Paste `Code.gs` into a Google Sheet's Apps Script editor
 2. Run **Initial Setup** → verify all sheets created correctly
-3. Import a criteria CSV into the Criteria sheet → run **Sync Levels from Criteria**
+3. Import a criteria CSV into the Criteria sheet
 4. Run **Test API Connection** → verify both checks pass
 5. Grade a known submission → verify score matches expectations
 6. Test the email flow on a test row

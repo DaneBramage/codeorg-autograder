@@ -30,7 +30,6 @@ This creates:
 | Sheet | Purpose |
 |---|---|
 | **Submissions** | All student submissions and grades (one row per submission) |
-| **Levels** | Game Lab levels with Code.org links — enable/disable, set model overrides |
 | **Criteria** | Empty rubric sheet (you'll import a CSV next) |
 | **Grade View P#** | One per period — read-only views sorted by level then last name |
 
@@ -40,9 +39,8 @@ This creates:
 2. **File → Import → Upload** → pick a criteria CSV from the `criteria/` folder in this repo (e.g., `CSD-Unit3-Interactive-Animations-and-Games.csv`)
 3. Set **Import location** to **"Replace current sheet"** and **Separator type** to **"Detect automatically"**
 4. Click **Import data**
-5. Run **Autograder → Sync Levels from Criteria** — this populates the Levels sheet from the LevelIDs in your criteria
 
-> 💡 To switch to a different set of criteria later, just import a new CSV into the Criteria sheet and run Sync Levels again. Your Submissions and Grade Views are never affected.
+> 💡 To switch to a different set of criteria later, just import a new CSV into the Criteria sheet. Your Submissions and Grade Views are never affected.
 
 ### 4. Set your API Key
 
@@ -82,7 +80,7 @@ Create a Google Form with these fields:
 | First Name | Short answer | |
 | Last Name | Short answer | |
 | Class Period | Dropdown | 1, 2, 3, 4, 5, 6, 7, 8 (match your periods) |
-| Assessment Level | Dropdown | Copy LevelIDs from the Levels sheet |
+| Assessment Level | Dropdown | Copy LevelIDs from the Criteria sheet |
 | Share URL | Short answer | Students paste their Code.org share link |
 
 Then link it to your spreadsheet:
@@ -114,7 +112,7 @@ The first time you run any Autograder menu action (or when a trigger fires), Goo
 | Permission | Why the autograder needs it |
 |---|---|
 | **Read, compose, send… email from Gmail** | Sends grading results to students via `GmailApp.sendEmail()`. The script never reads or deletes your emails. |
-| **See, edit, create… Google Sheets** | Reads/writes the Submissions, Levels, Criteria, and Grade View sheets — this is the core of the autograder. |
+| **See, edit, create… Google Sheets** | Reads/writes the Submissions, Criteria, and Grade View sheets — this is the core of the autograder. |
 | **View and manage your forms in Google Drive** | Only used by **Create Submission Form** to build the Google Form. You can skip this if you create the form manually. |
 | **Connect to an external service** | Calls the Gemini or OpenAI API to grade student code, and fetches student source code from `studio.code.org`. |
 | **Allow this application to run when you are not present** | Enables the `onFormSubmit` trigger to auto-grade submissions even when you don't have the spreadsheet open. |
@@ -132,14 +130,13 @@ All menu actions operate on the **Submissions** sheet — never on Form Response
 
 | Menu Item | What it does | Use this when… |
 |---|---|---|
-| **Initial Setup…** | Creates Submissions, Levels, Criteria, and Grade View sheets (additive — won't overwrite existing) | First-time setup, or adding a new period mid-year |
-| ↳ *Reset Everything* | Deletes Submissions, Levels, Criteria, and all Grade View P# sheets. Form Responses 1 is not affected. (Inside the Setup dialog) | Starting a fresh semester, or something is badly broken |
+| **Initial Setup…** | Creates Submissions, Criteria, and Grade View sheets (additive — won't overwrite existing) | First-time setup, or adding a new period mid-year |
+| ↓ *Reset Everything* | Deletes Submissions, Criteria, and all Grade View P# sheets. Form Responses 1 is not affected. (Inside the Setup dialog) | Starting a fresh semester, or something is badly broken |
 | **Grade New Submissions** | Imports any new form responses into Submissions, then grades all ungraded rows | Daily workflow — checking in on student progress |
 | **Re-grade Selected Rows** | Re-grades only the rows you highlight in Submissions | You edited criteria and want to test the change on a few rows |
 | **Re-grade All Rows…** | Re-grades every submission (slow, uses API credits) | You changed criteria and want to recalculate all scores |
 | **Grade & Email All New** | Imports, grades, and emails results for all un-emailed students in one step | Batch grading at the end of a class or day |
 | **Email Selected Rows** | Sends result emails for rows you highlight in Submissions (re-sends even if already emailed) | Re-sending updated grades after re-grading, or sending after manual review |
-| **Sync Levels from Criteria** | Rebuilds the Levels sheet from LevelIDs found in the Criteria sheet. Preserves existing Enabled/Model settings. | You imported a new/updated criteria CSV and need the Levels sheet to match |
 | **Create Submission Form** | Creates a Google Form with the correct fields, links it to this spreadsheet, and installs the onFormSubmit trigger | First-time setup — replaces manual form creation |
 | **Test API Connection** | Verifies API key and structured JSON grading in one combined test | After initial setup, or when troubleshooting |
 | **Help / Setup Guide** | Opens the in-app help dialog | Any time you need a quick reference |
@@ -172,15 +169,9 @@ The main data sheet. One row per submission. All grading reads/writes happen her
 
 Read-only formula sheets (one per period). Automatically filters and sorts Submissions by period, then by level and last name. Rows are alternately shaded by level group (white/gray) so you can quickly see where one level's submissions end and the next begins. **Protected** — don't edit these directly.
 
-### Levels
-
-Lists all 16 Game Lab levels with direct links to Code.org. You can:
-- **Uncheck Enabled** to skip grading for a level
-- **Set a Model override** (e.g., `gemini-2.0-flash-lite`) for a specific level
-
 ### Criteria
 
-The rubric. Imported from a CSV file (see `criteria/` folder). You can edit descriptions or point values directly in the sheet to customize grading. To load a completely different rubric, import a new CSV (File → Import → "Replace current sheet") and run **Sync Levels from Criteria**.
+The rubric. Imported from a CSV file (see `criteria/` folder). You can edit descriptions or point values directly in the sheet to customize grading. To load a completely different rubric, import a new CSV (File → Import → "Replace current sheet").
 
 ---
 
@@ -218,10 +209,6 @@ Set in **Extensions → Apps Script → ⚙️ Project Settings → Script Prope
 | `GEMINI_API_KEY` | Yes (default) | Your Gemini API key ([get one free](https://aistudio.google.com)) |
 | `OPENAI_API_KEY` | If using OpenAI | Your OpenAI API key |
 | `LLM_PROVIDER` | No | `gemini` (default) or `openai` |
-
-### Per-Level Model Overrides
-
-In the **Levels** sheet, the **Model** column lets you override the default model for specific levels. For example, you could use a more capable model for the complex Side Scroller project while using a faster/cheaper model for simpler levels. Leave blank to use the default.
 
 ---
 
@@ -261,7 +248,7 @@ All criteria use `llm_check` — each criterion is sent to the LLM along with th
 |---|---|
 | **"Missing GEMINI_API_KEY"** | Set the script property in Extensions → Apps Script → ⚙️ Project Settings → Script Properties |
 | **"Invalid share link"** | Student's URL doesn't match `studio.code.org/projects/gamelab/...` — have them re-copy the share link |
-| **"Level disabled/unknown"** | The LevelID doesn't match any enabled level in the Levels sheet — check for typos |
+| **"No criteria found"** | The LevelID submitted doesn't match any LevelID in your Criteria sheet — check for typos in the form or criteria CSV |
 | **Rows showing `Error` status** | Usually a rate limit (429) that exhausted retries. Select the Error rows and run **Re-grade Selected Rows** — the retry logic will handle the backoff. |
 | **Submissions aren't auto-importing** | Verify the `onFormSubmit` trigger is set up (Extensions → Apps Script → Triggers). Use **Grade New Submissions** to catch up. |
 | **Students not receiving emails** | Check that the Email column has valid addresses and EmailedAt is blank. Rows with `Status = Error` are intentionally skipped to avoid emailing error text to students. Gmail has daily sending limits (~100/day consumer, ~1,500/day Workspace). |
