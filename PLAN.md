@@ -10,7 +10,7 @@
 - Extract channel ID from share URL → fetch source from Code.org → build rubric prompt → call LLM → parse structured JSON → write score/notes → email student
 - Dual LLM support (Gemini default, OpenAI optional)
 - Robust JSON normalization with multiple fallback strategies
-- Grade caching via `CacheService` (6-hour TTL, keyed by SHA-256 of LevelID + source)
+- Grade caching via `CacheService` (6-hour TTL, keyed by SHA-256 of LevelID + criteria + source)
 
 ---
 
@@ -120,10 +120,10 @@ Sheets are **protected** with `setWarningOnly(true)`.
 | 5 | Selection actions require Submissions sheet active | Prevents confusing "no rows selected" when on wrong sheet |
 | 6 | Setup dialog is additive (never overwrites) | Safe to re-run; Reset Everything is separate and explicit |
 | 7 | Combined API test (basic + structured) | Fewer menu items; catches both connection and JSON issues |
-| 9 | Button feedback in setup dialog | Buttons disable + show status text while server-side code runs |
-| 10 | CSS grid for period checkboxes | Clean layout regardless of how many periods (no singleton rows) |
-| 11 | `createSubmissionForm()` builds the form automatically | Eliminates manual form setup errors; guarantees field names match `headersSmart_()` aliases |
-| 12 | `importFormResponses_()` scans all Form Responses sheets | Handles accidental duplicate forms; dedup keys prevent double-imports |
+| 8 | Button feedback in setup dialog | Buttons disable + show status text while server-side code runs |
+| 9 | CSS grid for period checkboxes | Clean layout regardless of how many periods (no singleton rows) |
+| 10 | `createSubmissionForm()` builds the form automatically | Eliminates manual form setup errors; guarantees field names match `headersSmart_()` aliases |
+| 11 | `importFormResponses_()` scans all Form Responses sheets | Handles accidental duplicate forms; dedup keys prevent double-imports |
 
 ---
 
