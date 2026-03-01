@@ -14,8 +14,7 @@ Built for the **CSD Unit 3 (Interactive Animations and Games)** curriculum.
 
 The fastest way to get started — everything is pre-configured:
 
-1. **Open the [Code.org Autograder Starter Sheet](https://docs.google.com/spreadsheets/d/1VLgArpF6lgt5tuJvuFoLqXWtcYMmt1S_H2dVljmH0Pc/edit?usp=sharing)**
-2. **File → Make a copy** (this gives you your own editable copy with the script and criteria already loaded)
+1. **[Make a copy of the Code.org Autograder Starter Sheet](https://docs.google.com/spreadsheets/d/1VLgArpF6lgt5tuJvuFoLqXWtcYMmt1S_H2dVljmH0Pc/copy)** (this gives you your own editable copy with the script and criteria already loaded)
 3. **Reload the spreadsheet** — the **Autograder** menu will appear
 4. **Run Initial Setup:** Click **Autograder → Initial Setup…**, check your class periods, and click **Create Sheets**
 5. **Authorize the script:** Google will ask you to approve permissions — this is normal. Click **Advanced → Go to Auto-Grader Script (unsafe)** and check all permission boxes. ([Why is this safe? See details below.](#-authorization--permissions))
@@ -226,6 +225,8 @@ The rubric. Imported from a CSV file (see `criteria/` folder). You can edit desc
 | Lesson-20-Level-07 | 1 | Horse to unicorn |
 | Lesson-21-Side-Scroller | 16 | Side-scroller game project |
 | Lesson-22-Level-06 | 1 | Rock falls back down |
+| Lesson-23-Level-07 | 4 | Animal collisions |
+| Lesson-25-Level-09 | 7 | Coin catcher functions |
 
 ---
 
@@ -317,7 +318,7 @@ If you have a GitHub account, [open an issue](../../issues) — it only takes a 
 
 1. Go to the [Issues tab](../../issues) on the repository page
 2. Click **New issue**
-3. Give it a short title (e.g., "Lesson 13 criterion too strict" or "App Lab URL not recognized")
+3. Give it a short title (e.g. "App Lab URL not recognized")
 4. Describe what happened, what you expected, and any relevant details (LevelID, error message, etc.)
 5. Click **Submit new issue**
 
