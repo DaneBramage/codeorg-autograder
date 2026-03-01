@@ -532,16 +532,21 @@ function createSubmissionForm() {
 
   var formUrl = form.getEditUrl();
   var publishedUrl = form.getPublishedUrl();
-  ui.alert(
-    'Form Created!',
-    'Your submission form has been created and linked to this spreadsheet.\n\n' +
-    '\u2705 Form responses will appear in a new "Form Responses" tab\n' +
-    '\u2705 The onFormSubmit trigger has been installed\n\n' +
-    'Student link (share this):\n' + publishedUrl + '\n\n' +
-    'Edit form:\n' + formUrl + '\n\n' +
-    'You can find the form in your Google Drive.',
-    ui.ButtonSet.OK
-  );
+  var dialogHtml = HtmlService.createHtmlOutput(
+    '<div style="font-family:Arial,Helvetica,sans-serif;font-size:13px;line-height:1.6;">' +
+    '<p style="margin:0 0 12px 0;">' +
+    '\u2705 Form responses will appear in a new "Form Responses" tab<br>' +
+    '\u2705 The onFormSubmit trigger has been installed</p>' +
+    '<p style="margin:0 0 6px 0;"><b>Student link</b> (share this):</p>' +
+    '<p style="margin:0 0 12px 0;"><a href="' + publishedUrl + '" target="_blank">' + publishedUrl + '</a></p>' +
+    '<p style="margin:0 0 6px 0;"><b>Edit form:</b></p>' +
+    '<p style="margin:0 0 12px 0;"><a href="' + formUrl + '" target="_blank">' + formUrl + '</a></p>' +
+    '<p style="margin:0 0 12px 0;color:#666;">You can also find the form in your Google Drive.</p>' +
+    '<button onclick="google.script.host.close()" style="padding:8px 20px;font-size:13px;cursor:pointer;' +
+    'background:#4285f4;color:#fff;border:none;border-radius:4px;">OK</button>' +
+    '</div>'
+  ).setWidth(480).setHeight(280);
+  ui.showModalDialog(dialogHtml, 'Form Created!');
 }
 
 
