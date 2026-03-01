@@ -307,11 +307,27 @@ game-lab-autograder/
 
 ---
 
-## 🤝 Contributing
+## 🤝 Contributing & Feedback
 
-Contributions welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Found a bug? Have an idea? Want to share criteria for a different curriculum? There are two ways to get in touch:
 
-If you're a teacher using this and have feedback, bug reports, or ideas for new levels/criteria, please [open an issue](../../issues).
+### Option 1: GitHub (preferred)
+
+If you have a GitHub account, [open an issue](../../issues) — it only takes a minute:
+
+1. Go to the [Issues tab](../../issues) on the repository page
+2. Click **New issue**
+3. Give it a short title (e.g., "Lesson 13 criterion too strict" or "App Lab URL not recognized")
+4. Describe what happened, what you expected, and any relevant details (LevelID, error message, etc.)
+5. Click **Submit new issue**
+
+That's it! You don't need to know how to code to open an issue.
+
+> **Want to contribute criteria or code?** See [CONTRIBUTING.md](CONTRIBUTING.md) for the full guide — including how to submit new rubric CSVs for different courses or units.
+
+### Option 2: Email
+
+Not a GitHub user? No problem — send me an email at the address listed in the forum post where you found this project. Bug reports, feature ideas, and criteria contributions are all welcome.
 
 ---
 

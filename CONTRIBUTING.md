@@ -1,21 +1,35 @@
 # Contributing to Code.org Autograder
 
-Thanks for your interest in improving the autograder! This project is built by teachers for teachers.
+Thanks for your interest in improving the autograder! This project is built by teachers for teachers — you don't need to be a developer to contribute.
 
-## Ways to Contribute
+> **Note:** This project is maintained in my spare time. I may not respond quickly to issues or review all pull requests. Feel free to fork and adapt for your own needs!
 
-### Report Issues
-- **Bug reports:** Something not grading correctly? Share the LevelID and describe what happened.
-- **Grading accuracy:** If a criterion is consistently too strict or too lenient, open an issue with examples.
-- **Setup problems:** Describe your environment (school Google Workspace vs. personal Gmail, etc.).
-- **Note:** This project is maintained in my spare time. I may not respond quickly to issues or review all pull requests. Feel free to fork and adapt for your own needs!
+## Report a Bug or Request a Feature
 
-### Suggest Improvements
-- New levels or criteria for existing CSD Unit 3 lessons
-- UX improvements to the menu, dialogs, or email templates
-- Documentation improvements
+The easiest way to contribute is to [open an issue](../../issues) on GitHub:
 
-### Submit Code
+1. Go to the **Issues** tab at the top of the repository page
+2. Click **New issue**
+3. Give it a short, descriptive title
+4. Describe the problem or idea — include the LevelID, any error messages, and what you expected to happen
+5. Click **Submit new issue**
+
+Helpful details to include:
+- **Bug reports:** Which LevelID? What did the student submit? What score/status did the autograder give vs. what you expected?
+- **Setup problems:** Are you on a school Google Workspace or personal Gmail? What step did you get stuck on?
+
+## Share Criteria for a Different Course
+
+Have criteria for a course or unit that isn't covered yet? You can contribute a CSV file — no coding required:
+
+1. Create a CSV with columns: `LevelID,CriterionID,Points,Type,Description` (see the existing CSV in `criteria/` for an example)
+2. If you're comfortable with GitHub: fork the repo, add your CSV to the `criteria/` folder, and open a pull request
+3. If not: [open an issue](../../issues), attach your CSV file, and describe which course/unit it covers — I'll add it to the repo
+
+## Submit Code Changes
+
+For developers who want to modify `Code.gs` or fix bugs:
+
 1. Fork the repository
 2. Make your changes to `Code.gs` (for script changes) or add/edit CSV files in `criteria/` (for rubric changes)
 3. Test in a real Google Sheet (paste into Apps Script, run Initial Setup, import criteria CSV, grade a few submissions)
@@ -82,4 +96,4 @@ There's no automated test suite (it's Apps Script). Manual testing workflow:
 
 ## Questions?
 
-Open an issue — happy to help when I have time!
+[Open an issue](../../issues) — happy to help when I have time! Not a GitHub user? Reach out via the email listed in the forum post where you found this project.
